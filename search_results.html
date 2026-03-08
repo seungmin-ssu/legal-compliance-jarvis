@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>검색 결과 - 마이 리걸 컴플라이언스 자비스</title>
+    <style>
+        body { background-color: #121212; color: #ffffff; font-family: 'Malgun Gothic', sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        header { padding: 15px 30px; background-color: #1e1e1e; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 30px; position: sticky; top: 0; z-index: 100; }
+        .logo { color: #4da8da; font-size: 1.5rem; font-weight: bold; text-decoration: none; cursor: pointer; }
+        .search-bar { flex: 1; max-width: 600px; display: flex; }
+        .search-bar input { flex: 1; padding: 10px 15px; font-size: 1rem; border: 1px solid #333; border-radius: 20px 0 0 20px; background-color: #121212; color: white; outline: none; }
+        .search-bar button { padding: 10px 20px; border: none; border-radius: 0 20px 20px 0; background-color: #4da8da; color: #121212; font-weight: bold; cursor: pointer; }
+        
+        .main-container { display: flex; flex: 1; padding: 20px 30px; gap: 30px; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        .sidebar { width: 260px; background-color: #1e1e1e; padding: 25px 20px; border-radius: 10px; border: 1px solid #333; height: fit-content; }
+        .filter-title { font-size: 1.1rem; font-weight: bold; color: #4da8da; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 8px; }
+        .filter-item { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: #cccccc; font-size: 0.95rem; cursor: pointer; }
+        
+        .results-area { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+        .result-card { background-color: #1e1e1e; padding: 25px; border-radius: 10px; border: 1px solid #333; transition: transform 0.2s; }
+        .result-card:hover { border-color: #4da8da; transform: translateY(-3px); }
+        .result-title { font-size: 1.2rem; font-weight: bold; color: #ffffff; margin-bottom: 12px; }
+        
+        .badge { padding: 4px 10px; border-radius: 15px; font-size: 0.75rem; font-weight: bold; margin-right: 8px; color: white; }
+        .badge.kr { background-color: #2c3e50; } .badge.us { background-color: #833471; } .badge.eu { background-color: #1e3799; } 
+        .badge.cn_jp { background-color: #d35400; } .badge.icj { background-color: #8e44ad; } .badge.un { background-color: #2980b9; } .badge.academic { background-color: #27ae60; }
+        
+        .result-desc { font-size: 0.95rem; color: #aaaaaa; line-height: 1.6; margin: 15px 0; }
+        .link-btn { display: inline-block; padding: 10px 20px; background-color: transparent; border: 1px solid #4da8da; color: #4da8da; text-decoration: none; border-radius: 5px; font-size: 0.9rem; font-weight: bold; transition: 0.3s; }
+        .link-btn:hover { background-color: #4da8da; color: #121212; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">JARVIS</a>
+        <div class="search-bar">
+            <input type="text" id="resultSearchInput" onkeypress="handleKeyPress(event)">
+            <button onclick="performSearch()">다시 검색</button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="filter-title">접근 대상 필터</div>
+            <label class="filter-item"><input type="checkbox" class="country-filter" value="KR" checked> 대한민국</label>
+            <label class="filter-item"><input type="checkbox" class="country-filter" value="US" checked> 미국 (US)</label>
+            <label class="filter-item"><input type="checkbox" class="country-filter" value="EU" checked> 유럽연합 (EU)</label>
+            <label class="filter-item"><input type="checkbox" class="country-filter" value="CN_JP" checked> 중국 & 일본</label>
+            <label class="filter-item"><input type="checkbox" class="country-filter" value="ICJ" checked> 국제재판소</label>
+            <label class="filter-item"><input type="checkbox" class="country-filter" value="UN" checked> 국제기구 (UN)</label>
+            <label class="filter-item"><input type="checkbox" class="country-filter" value="ACADEMIC" checked> 학술 논문</label>
+        </aside>
+
+        <main class="results-area" id="resultsArea"></main>
+    </div>
+
+    <script>
+        let allResults = [];
+
+        window.onload = function() {
+            const query = new URLSearchParams(window.location.search).get('q');
+            if (query) {
+                document.getElementById('resultSearchInput').value = query;
+                
+                // 파이썬 서버 없이 브라우저 단에서 직접 검색어 인코딩 및 데이터 생성
+                const encodedQ = encodeURIComponent(query);
+                const exactQ = encodeURIComponent(`"${query}"`);
+
+                allResults = [
+                    {
+                        title: `'${query}' 관련 대한민국 국가법령정보센터 검색 결과`,
+                        country: "KR", type: "법령/규제",
+                        desc: `대한민국 법제처에서 제공하는 '${query}' 관련 최신 법령 및 조례 목록입니다.`,
+                        link: `https://www.law.go.kr/lsSc.do?section=&menuId=1&subMenuId=15&tabMenuId=81&query=${encodedQ}`
+                    },
+                    {
+                        title: `'${query}' 관련 미국 연방법(U.S. Code) 및 판례 (CourtListener)`,
+                        country: "US", type: "판례/연방법",
+                        desc: `미국 연방 대법원 및 각 주 법원의 '${query}' 관련 주요 판결문과 법전 링크입니다.`,
+                        link: `https://www.courtlistener.com/?q=${encodedQ}`
+                    },
+                    {
+                        title: `'${query}' 관련 유럽연합(EU) 관보 및 EUR-Lex 자료`,
+                        country: "EU", type: "지침/규정",
+                        desc: `유럽연합 집행위원회에서 발행한 '${query}' 관련 규정(Regulation) 및 지침입니다.`,
+                        link: `https://eur-lex.europa.eu/search.html?scope=EURLEX&text=${encodedQ}&lang=en&type=quick`
+                    },
+                    {
+                        title: `'${query}' 관련 중국 PKULAW 및 일본 e-Gov 공개 자료`,
+                        country: "CN_JP", type: "해외법령",
+                        desc: `중국 북경대 법률정보망 및 일본 총무성 e-Gov에 공개된 '${query}' 관련 원문 자료 리스트입니다.`,
+                        link: `https://www.google.com/search?q=site:elaws.e-gov.go.jp+OR+site:pkulaw.com+${exactQ}`
+                    },
+                    {
+                        title: `'${query}' 관련 국제재판소 (ICJ / ICC) 주요 판례 및 원문`,
+                        country: "ICJ", type: "국제판례",
+                        desc: `국제사법재판소(ICJ) 공식 웹사이트에 등록된 '${query}' 관련 판결문 및 권고적 의견입니다.`,
+                        link: `https://www.google.com/search?q=site:icj-cij.org+${exactQ}`
+                    },
+                    {
+                        title: `'${query}' 관련 UN 공식 문서 및 국제 협약 원문`,
+                        country: "UN", type: "국제기구",
+                        desc: `유엔 공식 문서 시스템(ODS) 및 공식 웹사이트에 공개된 '${query}' 관련 PDF 및 보고서 목록입니다.`,
+                        link: `https://www.google.com/search?q=site:un.org+OR+site:documents.un.org+${exactQ}`
+                    },
+                    {
+                        title: `'${query}' 관련 주요 학술 논문 (Google Scholar)`,
+                        country: "ACADEMIC", type: "학술논문",
+                        desc: `국내외 법학 및 컴플라이언스 관련 '${query}' 학술 논문 및 연구 자료입니다.`,
+                        link: `https://scholar.google.co.kr/scholar?q=${encodedQ}`
+                    }
+                ];
+                renderResults();
+            }
+        };
+
+        function renderResults() {
+            const resultsArea = document.getElementById('resultsArea');
+            resultsArea.innerHTML = "";
+            const activeCountries = Array.from(document.querySelectorAll('.country-filter:checked')).map(cb => cb.value);
+
+            allResults.filter(r => activeCountries.includes(r.country)).forEach(result => {
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                
+                const nameMap = { "KR":"대한민국", "US":"미국 (US)", "EU":"유럽연합", "CN_JP":"중국 & 일본", "ICJ":"국제재판소", "UN":"국제기구", "ACADEMIC":"학술 논문" };
+                const badgeName = nameMap[result.country] || result.country;
+
+                card.innerHTML = `
+                    <div class="result-title">${result.title}</div>
+                    <div>
+                        <span class="badge ${result.country.toLowerCase()}">${badgeName}</span>
+                        <span style="color:#666; font-size:0.85rem;">${result.type}</span>
+                    </div>
+                    <div class="result-desc">${result.desc}</div>
+                    <a href="${result.link}" target="_blank" class="link-btn">원문 자료 보기 ↗</a>
+                `;
+                resultsArea.appendChild(card);
+            });
+        }
+
+        document.querySelectorAll('.country-filter').forEach(cb => cb.addEventListener('change', renderResults));
+
+        function performSearch() {
+            const q = document.getElementById('resultSearchInput').value;
+            if (q.trim()) window.location.href = `search_results.html?q=${encodeURIComponent(q)}`;
+        }
+        function handleKeyPress(e) { if (e.key === 'Enter') performSearch(); }
+    </script>
+</body>
+</html>
