@@ -19,13 +19,19 @@
         
         .results-area { flex: 1; display: flex; flex-direction: column; gap: 20px; }
         
-        /* 🚨 v2.0: 법령 API 전용 뷰어 스타일 추가 */
+        /* 🚨 v2.0 API 뷰어 스타일 */
         .api-viewer { background-color: #162436; border: 1px solid #4da8da; border-radius: 10px; padding: 25px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(77, 168, 218, 0.1); }
         .api-header { border-bottom: 1px solid #2c3e50; padding-bottom: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
         .api-title { font-size: 1.3rem; font-weight: bold; color: #4da8da; display: flex; align-items: center; gap: 10px; }
         .api-content { background-color: #0f1722; padding: 20px; border-radius: 5px; color: #e0e0e0; font-size: 0.95rem; line-height: 1.7; max-height: 400px; overflow-y: auto; border: 1px solid #1f2d3d; }
         .api-loading { color: #888888; font-style: italic; text-align: center; padding: 40px 20px; }
         .api-loading span { display: block; font-size: 1.2rem; margin-bottom: 10px; color: #4da8da; }
+        
+        .law-item { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #333; }
+        .law-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .law-title { font-size: 1.1rem; font-weight: bold; color: #ffffff; margin-bottom: 5px; display: block; text-decoration: none; }
+        .law-title:hover { color: #4da8da; }
+        .law-dept { font-size: 0.8rem; color: #aaaaaa; background: #2c3e50; padding: 2px 6px; border-radius: 4px; }
 
         .result-card { background-color: #1e1e1e; padding: 25px; border-radius: 10px; border: 1px solid #333; transition: transform 0.2s; }
         .result-card:hover { border-color: #4da8da; transform: translateY(-3px); }
@@ -66,8 +72,7 @@
                     <div class="api-title">🇰🇷 대한민국 국가법령 다이렉트 브리핑</div>
                     <span style="font-size: 0.8rem; color: #aaa;">Data Source: 법제처 OpenAPI</span>
                 </div>
-                <div id="krApiContent" class="api-content">
-                    </div>
+                <div id="krApiContent" class="api-content"></div>
             </div>
             
             <div id="otherResultsArea"></div>
@@ -75,8 +80,8 @@
     </div>
 
     <script>
-        // 🚨 내일 승인받으신 인증키를 아래 "" 사이에 붙여넣기만 하시면 됩니다!
-        const MOLEG_API_KEY = "발급대기중"; 
+        // 🚨 중요: 여기에 법제처 로그인 시 사용한 '이메일 ID'를 정확히 입력하세요.
+        const MOLEG_API_KEY = "ohsm1023@gmail.com"; 
 
         let allResults = [];
         let currentQuery = "";
@@ -105,33 +110,55 @@
 
         function renderResults() {
             const activeCountries = Array.from(document.querySelectorAll('.country-filter:checked')).map(cb => cb.value);
-            
-            // 1. 대한민국 API 뷰어 렌더링 로직
             const apiSection = document.getElementById('krApiSection');
             const apiContent = document.getElementById('krApiContent');
             
             if (activeCountries.includes("KR")) {
                 apiSection.style.display = "block";
                 
-                if (MOLEG_API_KEY === "발급대기중") {
-                    // 키 발급 전 대기 화면 (내일 키를 넣으면 이 부분이 진짜 데이터로 바뀝니다)
-                    apiContent.innerHTML = `
-                        <div class="api-loading">
-                            <span>⏳ OpenAPI 연동 대기 중입니다.</span>
-                            법제처 API 인증키가 등록되지 않았습니다.<br>
-                            내일 인증키 승인이 완료된 후, 자바스크립트 코드의 <b>MOLEG_API_KEY</b>에 값을 입력하면<br>
-                            이 공간에 '${currentQuery}' 관련 실제 법령 조문이 다이렉트로 출력됩니다.
-                        </div>
-                    `;
+                if (MOLEG_API_KEY === "여기에_아이디를_입력하세요") {
+                    apiContent.innerHTML = `<div class="api-loading"><span>⚠️ 아이디 입력 필요</span>코드 상단의 MOLEG_API_KEY 변수에 법제처 로그인 ID를 입력해주세요.</div>`;
                 } else {
-                    // 내일 구현할 실제 Fetch(데이터 호출) 로직이 들어갈 자리입니다.
-                    apiContent.innerHTML = `<div class="api-loading"><span>📡 데이터를 불러오는 중...</span>법제처 서버와 통신 중입니다.</div>`;
+                    apiContent.innerHTML = `<div class="api-loading"><span>📡 데이터를 불러오는 중...</span>법제처 공공데이터 서버와 실시간 통신 중입니다.</div>`;
+                    
+                    // 2026년 기준 법제처 OpenAPI XML 규격 통신
+                    const apiUrl = `https://www.law.go.kr/DRF/lawSearch.do?OC=${MOLEG_API_KEY}&target=law&type=XML&query=${encodeURIComponent(currentQuery)}`;
+                    
+                    fetch(apiUrl)
+                        .then(response => response.text())
+                        .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+                        .then(data => {
+                            const laws = data.querySelectorAll("law");
+                            if (laws.length === 0) {
+                                apiContent.innerHTML = `<div style="text-align:center; color:#aaa; padding:20px;">'${currentQuery}'에 대한 현행 법령 검색 결과가 없습니다.</div>`;
+                                return;
+                            }
+                            
+                            let html = "";
+                            // 최대 5개의 관련 법령 직접 브리핑
+                            for(let i=0; i<Math.min(laws.length, 5); i++) {
+                                const lawName = laws[i].querySelector("법령명한글").textContent;
+                                const lawLink = laws[i].querySelector("법령상세링크").textContent;
+                                const dept = laws[i].querySelector("소관부처명").textContent;
+                                
+                                html += `
+                                    <div class="law-item">
+                                        <a href="https://www.law.go.kr${lawLink}" target="_blank" class="law-title">📄 ${lawName}</a>
+                                        <span class="law-dept">소관: ${dept}</span>
+                                    </div>
+                                `;
+                            }
+                            apiContent.innerHTML = html;
+                        })
+                        .catch(error => {
+                            console.error("API 연동 에러:", error);
+                            apiContent.innerHTML = `<div style="color:#e74c3c; text-align:center;">API 통신 중 오류가 발생했습니다.<br>CORS 정책 또는 네트워크 상태를 확인해주세요.</div>`;
+                        });
                 }
             } else {
                 apiSection.style.display = "none";
             }
 
-            // 2. 나머지 국가 카드 렌더링 로직
             const otherResultsArea = document.getElementById('otherResultsArea');
             otherResultsArea.innerHTML = "";
 
