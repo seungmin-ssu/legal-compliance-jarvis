@@ -3,60 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>검색 결과 - 마이 리걸 컴플라이언스 자비스</title>
+    <title>리서치 결과 - DONNA</title>
     <style>
-        body { background-color: #121212; color: #ffffff; font-family: 'Malgun Gothic', sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
-        header { padding: 15px 30px; background-color: #1e1e1e; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 30px; position: sticky; top: 0; z-index: 100; }
-        .logo { color: #4da8da; font-size: 1.5rem; font-weight: bold; text-decoration: none; cursor: pointer; }
+        body { background-color: #0B111A; color: #E2E8F0; font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        
+        /* 헤더 */
+        header { padding: 15px 30px; background-color: #0F172A; border-bottom: 1px solid #1E293B; display: flex; align-items: center; gap: 30px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .logo { color: #BFAA71; font-size: 1.5rem; font-weight: 800; text-decoration: none; cursor: pointer; letter-spacing: 2px; }
         .search-bar { flex: 1; max-width: 600px; display: flex; }
-        .search-bar input { flex: 1; padding: 10px 15px; font-size: 1rem; border: 1px solid #333; border-radius: 20px 0 0 20px; background-color: #121212; color: white; outline: none; }
-        .search-bar button { padding: 10px 20px; border: none; border-radius: 0 20px 20px 0; background-color: #4da8da; color: #121212; font-weight: bold; cursor: pointer; }
+        .search-bar input { flex: 1; padding: 10px 15px; font-size: 1rem; border: 1px solid #334155; border-radius: 4px 0 0 4px; background-color: #1E293B; color: #F8FAFC; outline: none; transition: 0.3s; }
+        .search-bar input:focus { border-color: #BFAA71; }
+        .search-bar button { padding: 10px 20px; border: none; border-radius: 0 4px 4px 0; background-color: #BFAA71; color: #0B111A; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .search-bar button:hover { background-color: #D4C391; }
         
-        .main-container { display: flex; flex: 1; padding: 20px 30px; gap: 30px; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; }
-        .sidebar { width: 260px; background-color: #1e1e1e; padding: 25px 20px; border-radius: 10px; border: 1px solid #333; height: fit-content; }
-        .filter-title { font-size: 1.1rem; font-weight: bold; color: #4da8da; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 8px; }
-        .filter-item { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: #cccccc; font-size: 0.95rem; cursor: pointer; }
+        /* 메인 레이아웃 */
+        .main-container { display: flex; flex: 1; padding: 30px; gap: 30px; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; }
         
+        /* 사이드바 필터 */
+        .sidebar { width: 260px; background-color: #0F172A; padding: 25px 20px; border-radius: 8px; border: 1px solid #1E293B; height: fit-content; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .filter-title { font-size: 1.1rem; font-weight: bold; color: #BFAA71; margin-bottom: 15px; border-bottom: 1px solid #1E293B; padding-bottom: 10px; letter-spacing: 0.5px; }
+        .filter-item { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: #94A3B8; font-size: 0.95rem; cursor: pointer; transition: 0.2s; }
+        .filter-item:hover { color: #F8FAFC; }
+        
+        /* 결과 영역 */
         .results-area { flex: 1; display: flex; flex-direction: column; gap: 20px; }
         
-        /* 🚨 v2.0 API 뷰어 스타일 */
-        .api-viewer { background-color: #162436; border: 1px solid #4da8da; border-radius: 10px; padding: 25px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(77, 168, 218, 0.1); }
-        .api-header { border-bottom: 1px solid #2c3e50; padding-bottom: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .api-title { font-size: 1.3rem; font-weight: bold; color: #4da8da; display: flex; align-items: center; gap: 10px; }
-        .api-content { background-color: #0f1722; padding: 20px; border-radius: 5px; color: #e0e0e0; font-size: 0.95rem; line-height: 1.7; max-height: 400px; overflow-y: auto; border: 1px solid #1f2d3d; }
-        .api-loading { color: #888888; font-style: italic; text-align: center; padding: 40px 20px; }
-        .api-loading span { display: block; font-size: 1.2rem; margin-bottom: 10px; color: #4da8da; }
+        /* v2.0 API 뷰어 스타일 리팩토링 */
+        .api-viewer { background-color: #162032; border: 1px solid #BFAA71; border-radius: 8px; padding: 25px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(191, 170, 113, 0.08); }
+        .api-header { border-bottom: 1px solid #2A3B53; padding-bottom: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .api-title { font-size: 1.25rem; font-weight: bold; color: #BFAA71; display: flex; align-items: center; gap: 10px; letter-spacing: 0.5px; }
+        .api-content { background-color: #0F172A; padding: 20px; border-radius: 4px; color: #E2E8F0; font-size: 0.95rem; line-height: 1.7; max-height: 400px; overflow-y: auto; border: 1px solid #1E293B; }
+        .api-loading { color: #64748B; text-align: center; padding: 40px 20px; }
+        .api-loading span { display: block; font-size: 1.1rem; margin-bottom: 10px; color: #BFAA71; font-weight: bold; }
         
-        .law-item { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #333; }
+        .law-item { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #1E293B; }
         .law-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-        .law-title { font-size: 1.1rem; font-weight: bold; color: #ffffff; margin-bottom: 5px; display: block; text-decoration: none; }
-        .law-title:hover { color: #4da8da; }
-        .law-dept { font-size: 0.8rem; color: #aaaaaa; background: #2c3e50; padding: 2px 6px; border-radius: 4px; }
+        .law-title { font-size: 1.1rem; font-weight: bold; color: #F8FAFC; margin-bottom: 8px; display: block; text-decoration: none; transition: 0.2s; }
+        .law-title:hover { color: #BFAA71; }
+        .law-dept { font-size: 0.8rem; color: #94A3B8; background: #1E293B; padding: 4px 8px; border-radius: 2px; border: 1px solid #334155; }
 
-        .result-card { background-color: #1e1e1e; padding: 25px; border-radius: 10px; border: 1px solid #333; transition: transform 0.2s; }
-        .result-card:hover { border-color: #4da8da; transform: translateY(-3px); }
-        .result-title { font-size: 1.2rem; font-weight: bold; color: #ffffff; margin-bottom: 12px; }
-        .badge { padding: 4px 10px; border-radius: 15px; font-size: 0.75rem; font-weight: bold; margin-right: 8px; color: white; }
-        .badge.us { background-color: #833471; } .badge.eu { background-color: #1e3799; } 
-        .badge.cn_jp { background-color: #d35400; } .badge.icj { background-color: #8e44ad; } .badge.un { background-color: #2980b9; } .badge.academic { background-color: #27ae60; }
-        .result-desc { font-size: 0.95rem; color: #aaaaaa; line-height: 1.6; margin: 15px 0; }
-        .link-btn { display: inline-block; padding: 10px 20px; background-color: transparent; border: 1px solid #4da8da; color: #4da8da; text-decoration: none; border-radius: 5px; font-size: 0.9rem; font-weight: bold; transition: 0.3s; }
-        .link-btn:hover { background-color: #4da8da; color: #121212; }
+        /* 일반 결과 카드 */
+        .result-card { background-color: #162032; padding: 25px; border-radius: 8px; border: 1px solid #2A3B53; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .result-card:hover { border-color: #BFAA71; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+        .result-title { font-size: 1.2rem; font-weight: bold; color: #F8FAFC; margin-bottom: 12px; line-height: 1.4; }
+        
+        /* 뱃지 고급화 (모두 차분한 톤으로 통일) */
+        .badge { padding: 4px 10px; border-radius: 2px; font-size: 0.75rem; font-weight: bold; margin-right: 8px; color: #fff; border: 1px solid rgba(255,255,255,0.1); }
+        .badge.us { background-color: #334155; } .badge.eu { background-color: #1E293B; } 
+        .badge.cn_jp { background-color: #475569; } .badge.icj { background-color: #0F172A; } .badge.un { background-color: #1e293b; } .badge.academic { background-color: #334155; }
+        
+        .result-desc { font-size: 0.95rem; color: #94A3B8; line-height: 1.6; margin: 15px 0; }
+        .link-btn { display: inline-block; padding: 8px 18px; background-color: transparent; border: 1px solid #BFAA71; color: #BFAA71; text-decoration: none; border-radius: 4px; font-size: 0.9rem; font-weight: bold; transition: 0.3s; }
+        .link-btn:hover { background-color: #BFAA71; color: #0B111A; }
     </style>
 </head>
 <body>
 
     <header>
-        <a href="index.html" class="logo">JARVIS</a>
+        <a href="index.html" class="logo">DONNA</a>
         <div class="search-bar">
             <input type="text" id="resultSearchInput" onkeypress="handleKeyPress(event)">
-            <button onclick="performSearch()">다시 검색</button>
+            <button onclick="performSearch()">리서치</button>
         </div>
     </header>
 
     <div class="main-container">
         <aside class="sidebar">
-            <div class="filter-title">접근 대상 필터</div>
+            <div class="filter-title">Data Source Filter</div>
             <label class="filter-item"><input type="checkbox" class="country-filter" value="KR" checked> 대한민국 (API 연동)</label>
             <label class="filter-item"><input type="checkbox" class="country-filter" value="US" checked> 미국 (US)</label>
             <label class="filter-item"><input type="checkbox" class="country-filter" value="EU" checked> 유럽연합 (EU)</label>
@@ -70,7 +83,7 @@
             <div id="krApiSection" class="api-viewer" style="display: none;">
                 <div class="api-header">
                     <div class="api-title">🇰🇷 대한민국 국가법령 다이렉트 브리핑</div>
-                    <span style="font-size: 0.8rem; color: #aaa;">Data Source: 법제처 OpenAPI</span>
+                    <span style="font-size: 0.8rem; color: #94A3B8;">Source: 법제처 OpenAPI</span>
                 </div>
                 <div id="krApiContent" class="api-content"></div>
             </div>
@@ -81,7 +94,7 @@
 
     <script>
         // 🚨 중요: 여기에 법제처 로그인 시 사용한 '이메일 ID'를 정확히 입력하세요.
-        const MOLEG_API_KEY = "ohsm1023@gmail.com"; 
+        const MOLEG_API_KEY = "여기에_아이디를_입력하세요"; 
 
         let allResults = [];
         let currentQuery = "";
@@ -116,26 +129,28 @@
             if (activeCountries.includes("KR")) {
                 apiSection.style.display = "block";
                 
-                if (MOLEG_API_KEY === "여기에_아이디를_입력하세요") {
-                    apiContent.innerHTML = `<div class="api-loading"><span>⚠️ 아이디 입력 필요</span>코드 상단의 MOLEG_API_KEY 변수에 법제처 로그인 ID를 입력해주세요.</div>`;
+                if (MOLEG_API_KEY === "ohsm1023@gmail.com") {
+                    apiContent.innerHTML = `<div class="api-loading"><span>⚠️ 인증키 입력 대기 중</span>코드 상단의 MOLEG_API_KEY 변수에 법제처 로그인 ID를 입력해주세요.</div>`;
                 } else {
-                    apiContent.innerHTML = `<div class="api-loading"><span>📡 데이터를 불러오는 중...</span>법제처 공공데이터 서버와 실시간 통신 중입니다.</div>`;
+                    apiContent.innerHTML = `<div class="api-loading"><span>📡 Data Fetching...</span>법제처 공공데이터 서버와 실시간 통신 중입니다.</div>`;
                     
-                    // 2026년 기준 법제처 OpenAPI XML 규격 통신
                     const apiUrl = `https://www.law.go.kr/DRF/lawSearch.do?OC=${MOLEG_API_KEY}&target=law&type=XML&query=${encodeURIComponent(currentQuery)}`;
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
                     
-                    fetch(apiUrl)
-                        .then(response => response.text())
+                    fetch(proxyUrl)
+                        .then(response => {
+                            if (!response.ok) throw new Error("네트워크 응답 오류");
+                            return response.text();
+                        })
                         .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
                         .then(data => {
                             const laws = data.querySelectorAll("law");
                             if (laws.length === 0) {
-                                apiContent.innerHTML = `<div style="text-align:center; color:#aaa; padding:20px;">'${currentQuery}'에 대한 현행 법령 검색 결과가 없습니다.</div>`;
+                                apiContent.innerHTML = `<div style="text-align:center; color:#94A3B8; padding:20px;">'${currentQuery}'에 대한 현행 법령 검색 결과가 없습니다.</div>`;
                                 return;
                             }
                             
                             let html = "";
-                            // 최대 5개의 관련 법령 직접 브리핑
                             for(let i=0; i<Math.min(laws.length, 5); i++) {
                                 const lawName = laws[i].querySelector("법령명한글").textContent;
                                 const lawLink = laws[i].querySelector("법령상세링크").textContent;
@@ -144,7 +159,7 @@
                                 html += `
                                     <div class="law-item">
                                         <a href="https://www.law.go.kr${lawLink}" target="_blank" class="law-title">📄 ${lawName}</a>
-                                        <span class="law-dept">소관: ${dept}</span>
+                                        <span class="law-dept">소관부처: ${dept}</span>
                                     </div>
                                 `;
                             }
@@ -152,7 +167,7 @@
                         })
                         .catch(error => {
                             console.error("API 연동 에러:", error);
-                            apiContent.innerHTML = `<div style="color:#e74c3c; text-align:center;">API 통신 중 오류가 발생했습니다.<br>CORS 정책 또는 네트워크 상태를 확인해주세요.</div>`;
+                            apiContent.innerHTML = `<div style="color:#e74c3c; text-align:center; padding:20px;">API 통신 중 오류가 발생했습니다.<br>잠시 후 다시 시도해주세요.</div>`;
                         });
                 }
             } else {
@@ -173,7 +188,7 @@
                     <div class="result-title">${result.title}</div>
                     <div>
                         <span class="badge ${result.country.toLowerCase()}">${badgeName}</span>
-                        <span style="color:#666; font-size:0.85rem;">${result.type}</span>
+                        <span style="color:#64748B; font-size:0.85rem;">${result.type}</span>
                     </div>
                     <div class="result-desc">${result.desc}</div>
                     <a href="${result.link}" target="_blank" class="link-btn">원문 자료 보기 ↗</a>
