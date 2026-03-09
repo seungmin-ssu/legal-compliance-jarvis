@@ -96,17 +96,15 @@
                 const exactQ = encodeURIComponent(`"${query}"`);
 
                 allResults = [
-                    { title: `'${query}' 관련 미국 연방법(U.S. Code) 및 판례 (CourtListener)`, country: "US", type: "판례/연방법", desc: `미국 연방 대법원 및 각 주 법원의 '${query}' 관련 주요 판결문과 법전 링크입니다.`, link: `https://www.courtlistener.com/?q=${encodedQ}` },
+                    // 🚨 미국 검색 엔진 교체: CourtListener 제거 -> 코넬대(LII) 연방법/규정 + Justia 판례 통합 구글 검색으로 업그레이드
+                    { title: `'${query}' 관련 미국 연방법(U.S. Code), 규정(CFR) 및 판례`, country: "US", type: "연방법/규정/판례", desc: `Cornell LII 및 Justia를 통한 '${query}' 관련 미국 연방법전, 연방규정집 및 주요 판례 통합 검색입니다.`, link: `https://www.google.com/search?q=site:law.cornell.edu/uscode+OR+site:law.cornell.edu/cfr+OR+site:justia.com/cases+${exactQ}` },
+                    
                     { title: `'${query}' 관련 유럽연합(EU) 관보 및 EUR-Lex 자료`, country: "EU", type: "지침/규정", desc: `유럽연합 집행위원회에서 발행한 '${query}' 관련 규정(Regulation) 및 지침입니다.`, link: `https://eur-lex.europa.eu/search.html?scope=EURLEX&text=${encodedQ}&lang=en&type=quick` },
                     { title: `'${query}' 관련 중국 PKULAW 및 일본 e-Gov 공개 자료`, country: "CN_JP", type: "해외법령", desc: `중국 북경대 법률정보망 및 일본 총무성 e-Gov에 공개된 '${query}' 관련 원문 자료 리스트입니다.`, link: `https://www.google.com/search?q=site:elaws.e-gov.go.jp+OR+site:pkulaw.com+${exactQ}` },
                     { title: `'${query}' 관련 국제재판소 (ICJ / ICC) 주요 판례 및 원문`, country: "ICJ", type: "국제판례", desc: `국제사법재판소(ICJ) 공식 웹사이트에 등록된 '${query}' 관련 판결문 및 권고적 의견입니다.`, link: `https://www.google.com/search?q=site:icj-cij.org+${exactQ}` },
                     { title: `'${query}' 관련 UN 공식 문서 및 국제 협약 원문`, country: "UN", type: "국제기구", desc: `유엔 공식 문서 시스템(ODS) 및 공식 웹사이트에 공개된 '${query}' 관련 PDF 및 보고서 목록입니다.`, link: `https://www.google.com/search?q=site:un.org+OR+site:documents.un.org+${exactQ}` },
                     { title: `'${query}' 관련 주요 학술 논문 (Google Scholar)`, country: "ACADEMIC", type: "학술논문", desc: `국내외 법학 및 컴플라이언스 관련 '${query}' 학술 논문 및 연구 자료입니다.`, link: `https://scholar.google.co.kr/scholar?q=${encodedQ}` }
                 ];
-                
-                renderResults();
-            }
-        };
 
         function renderResults() {
             const activeCountries = Array.from(document.querySelectorAll('.country-filter:checked')).map(cb => cb.value);
