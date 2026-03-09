@@ -118,28 +118,43 @@
                 } else {
                     apiContent.innerHTML = `<div class="api-loading"><span>📡 Data Fetching...</span>법제처 공공데이터 서버와 실시간 통신 중입니다.</div>`;
                     
-                    // 🚨 Cache Busting: 프록시가 과거의 엉뚱한 기록을 가져오지 못하도록 고유한 시간값(_cb)을 강제로 추가
                     const timestamp = new Date().getTime();
                     const apiUrl = `https://www.law.go.kr/DRF/lawSearch.do?OC=${MOLEG_API_KEY}&target=law&type=XML&query=${encodeURIComponent(currentQuery)}&_cb=${timestamp}`;
-                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
+                    
+                    // 🚨 한글 호환성이 뛰어나고 캐싱 문제가 덜한 corsproxy.io 로 엔진 전면 교체
+                    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
                     
                     fetch(proxyUrl)
                         .then(response => {
-                            if (!response.ok) throw new Error("네트워크 응답 오류");
+                            if (!response.ok) throw new Error(`HTTP 에러: ${response.status}`);
                             return response.text();
                         })
-                        .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
-                        .then(data => {
-                            // 🚨 에러 탐지기: 법제처 서버가 에러 메시지(message, errMsg 등)를 보냈는지 먼저 검사
-                            const errorNode = data.querySelector("message, errMsg, Error");
+                        .then(str => {
+                            const xmlDoc = new window.DOMParser().parseFromString(str, "text/xml");
+                            
+                            // 🚨 파싱 에러(한글 깨짐 등) 발생 시 디버깅 출력
+                            if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
+                                throw new Error("XML 파싱 실패: 데이터 인코딩이 깨졌습니다.");
+                            }
+
+                            // 🚨 법제처가 직접 거부 메시지를 보냈는지 확인
+                            const errorNode = xmlDoc.querySelector("message, errMsg, Error");
                             if (errorNode) {
-                                apiContent.innerHTML = `<div style="text-align:center; color:#e74c3c; padding:20px;">🚨 API 통신 거부됨 (사유: ${errorNode.textContent})<br>인증키 승인이 서버에 아직 완전 반영되지 않았거나 트래픽 초과입니다. 잠시 후 다시 시도해주세요.</div>`;
+                                apiContent.innerHTML = `<div style="text-align:center; color:#e74c3c; padding:20px;">🚨 통신 거부 (사유: ${errorNode.textContent})<br>인증키 미승인 또는 트래픽 초과입니다.</div>`;
                                 return;
                             }
 
-                            const laws = data.querySelectorAll("law");
+                            const laws = xmlDoc.querySelectorAll("law");
                             if (laws.length === 0) {
-                                apiContent.innerHTML = `<div style="text-align:center; color:#94A3B8; padding:20px;">'${currentQuery}'에 대한 검색 결과가 없거나 법제처 서버 응답이 지연되고 있습니다.</div>`;
+                                // 🚨 결정적 디버깅 스캐너: 법이 없다고 나오면, 서버가 보낸 원문을 그대로 화면에 인쇄!
+                                const rawText = str.replace(/</g, "&lt;").replace(/>/g, "&gt;").substring(0, 300);
+                                apiContent.innerHTML = `
+                                    <div style="text-align:center; color:#94A3B8; padding:20px;">
+                                        '${currentQuery}'에 대한 검색 결과가 없습니다.<br><br>
+                                        <div style="background:#0B111A; padding:15px; border-radius:4px; text-align:left; font-size:0.8rem; color:#64748B; margin-top:15px; overflow-wrap:break-word;">
+                                            <b>[디버깅: 정부 서버 응답 원문]</b><br>${rawText}...
+                                        </div>
+                                    </div>`;
                                 return;
                             }
                             
@@ -160,7 +175,7 @@
                         })
                         .catch(error => {
                             console.error("API 연동 에러:", error);
-                            apiContent.innerHTML = `<div style="color:#e74c3c; text-align:center; padding:20px;">API 통신 중 오류가 발생했습니다.<br>잠시 후 다시 시도해주세요.</div>`;
+                            apiContent.innerHTML = `<div style="color:#e74c3c; text-align:center; padding:20px;">API 통신 중 오류가 발생했습니다. (사유: ${error.message})<br>정부 서버의 해외 IP 차단이 원인일 수 있습니다.</div>`;
                         });
                 }
             } else {
