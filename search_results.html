@@ -96,8 +96,8 @@
                 const exactQ = encodeURIComponent(`"${query}"`);
 
                 allResults = [
-                    // 🚨 미국 엔진 전면 교체: CourtListener 제거 -> Justia (연방법 + 50개 주법 + 판례 통합) 직통 연결
-                    { title: `'${query}' 관련 미국 연방법 및 50개 주법 통합 리서치`, country: "US", type: "연방/주법/판례", desc: `Justia를 통해 '${query}' 관련 미국 연방법전(U.S. Code)과 50개 주의 개별 주법(State Codes), 판례를 다이렉트로 통합 검색합니다.`, link: `https://search.justia.com/search?q=${encodedQ}` },
+                    // 🚨 미국 엔진 전면 교체: URL 라우팅 오류 해결 (search.justia.com -> www.justia.com)
+                    { title: `'${query}' 관련 미국 연방법 및 50개 주법 통합 리서치`, country: "US", type: "연방/주법/판례", desc: `Justia를 통해 '${query}' 관련 미국 연방법전(U.S. Code)과 50개 주의 개별 주법(State Codes), 판례를 다이렉트로 통합 검색합니다.`, link: `https://www.justia.com/search?q=${encodedQ}` },
                     
                     { title: `'${query}' 관련 유럽연합(EU) 관보 및 EUR-Lex 자료`, country: "EU", type: "지침/규정", desc: `유럽연합 집행위원회에서 발행한 '${query}' 관련 규정(Regulation) 및 지침입니다.`, link: `https://eur-lex.europa.eu/search.html?scope=EURLEX&text=${encodedQ}&lang=en&type=quick` },
                     { title: `'${query}' 관련 중국 PKULAW 및 일본 e-Gov 공개 자료`, country: "CN_JP", type: "해외법령", desc: `중국 북경대 법률정보망 및 일본 총무성 e-Gov에 공개된 '${query}' 관련 원문 자료 리스트입니다.`, link: `https://www.google.com/search?q=site:elaws.e-gov.go.jp+OR+site:pkulaw.com+${exactQ}` },
