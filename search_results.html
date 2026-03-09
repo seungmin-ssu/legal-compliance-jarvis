@@ -96,8 +96,8 @@
                 const exactQ = encodeURIComponent(`"${query}"`);
 
                 allResults = [
-                    // 🚨 미국 검색 엔진 교체: CourtListener 제거 -> 코넬대(LII) 연방법/규정 + Justia 판례 통합 구글 검색으로 업그레이드
-                    { title: `'${query}' 관련 미국 연방법(U.S. Code), 규정(CFR) 및 판례`, country: "US", type: "연방법/규정/판례", desc: `Cornell LII 및 Justia를 통한 '${query}' 관련 미국 연방법전, 연방규정집 및 주요 판례 통합 검색입니다.`, link: `https://www.google.com/search?q=site:law.cornell.edu/uscode+OR+site:law.cornell.edu/cfr+OR+site:justia.com/cases+${exactQ}` },
+                    // 🚨 미국 리서치 엔진 전면 교체 (Cornell LII 연방법/규정 + Justia 판례 통합)
+                    { title: `'${query}' 관련 미국 연방법(U.S. Code), 규정(CFR) 및 판례`, country: "US", type: "연방법/규정/판례", desc: `Cornell LII 및 Justia를 통한 '${query}' 관련 미국 연방법전, 연방행정규정 및 주요 판례 통합 검색입니다.`, link: `https://www.google.com/search?q=site:law.cornell.edu/uscode+OR+site:law.cornell.edu/cfr+OR+site:justia.com/cases+${exactQ}` },
                     
                     { title: `'${query}' 관련 유럽연합(EU) 관보 및 EUR-Lex 자료`, country: "EU", type: "지침/규정", desc: `유럽연합 집행위원회에서 발행한 '${query}' 관련 규정(Regulation) 및 지침입니다.`, link: `https://eur-lex.europa.eu/search.html?scope=EURLEX&text=${encodedQ}&lang=en&type=quick` },
                     { title: `'${query}' 관련 중국 PKULAW 및 일본 e-Gov 공개 자료`, country: "CN_JP", type: "해외법령", desc: `중국 북경대 법률정보망 및 일본 총무성 e-Gov에 공개된 '${query}' 관련 원문 자료 리스트입니다.`, link: `https://www.google.com/search?q=site:elaws.e-gov.go.jp+OR+site:pkulaw.com+${exactQ}` },
@@ -105,6 +105,10 @@
                     { title: `'${query}' 관련 UN 공식 문서 및 국제 협약 원문`, country: "UN", type: "국제기구", desc: `유엔 공식 문서 시스템(ODS) 및 공식 웹사이트에 공개된 '${query}' 관련 PDF 및 보고서 목록입니다.`, link: `https://www.google.com/search?q=site:un.org+OR+site:documents.un.org+${exactQ}` },
                     { title: `'${query}' 관련 주요 학술 논문 (Google Scholar)`, country: "ACADEMIC", type: "학술논문", desc: `국내외 법학 및 컴플라이언스 관련 '${query}' 학술 논문 및 연구 자료입니다.`, link: `https://scholar.google.co.kr/scholar?q=${encodedQ}` }
                 ];
+                
+                renderResults();
+            }
+        };
 
         function renderResults() {
             const activeCountries = Array.from(document.querySelectorAll('.country-filter:checked')).map(cb => cb.value);
@@ -114,7 +118,6 @@
             if (activeCountries.includes("KR")) {
                 apiSection.style.display = "block";
                 
-                // 🚨 핵심 수정: 법제처 공식 사이트의 정확한 파라미터를 모두 포함한 '완벽한' 다이렉트 URL
                 const fallbackLink = `https://www.law.go.kr/lsSc.do?section=&menuId=1&subMenuId=15&tabMenuId=81&query=${encodeURIComponent(currentQuery)}`;
                 
                 const showFallbackUI = () => {
@@ -167,7 +170,6 @@
                             apiContent.innerHTML = html;
                         })
                         .catch(error => {
-                            // 어떠한 에러가 발생하더라도 DONNA의 완벽한 플랜B 화면 출력
                             console.error("API 연동 제한:", error);
                             showFallbackUI();
                         });
