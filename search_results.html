@@ -39,6 +39,10 @@
         .result-desc { font-size: 0.95rem; color: #94A3B8; line-height: 1.6; margin: 15px 0; }
         .link-btn { display: inline-block; padding: 8px 18px; background-color: transparent; border: 1px solid #BFAA71; color: #BFAA71; text-decoration: none; border-radius: 4px; font-size: 0.9rem; font-weight: bold; transition: 0.3s; }
         .link-btn:hover { background-color: #BFAA71; color: #0B111A; }
+        
+        /* v2.0 fallback 버튼 애니메이션 */
+        .fallback-btn { display: inline-block; padding: 10px 25px; background-color: #BFAA71; color: #0B111A; text-decoration: none; border-radius: 4px; font-weight: bold; transition: 0.3s; margin-top: 15px; }
+        .fallback-btn:hover { background-color: #D4C391; transform: translateY(-2px); }
     </style>
 </head>
 <body>
@@ -113,6 +117,23 @@
             if (activeCountries.includes("KR")) {
                 apiSection.style.display = "block";
                 
+                // 🚨 우회 실패 시 바로 띄워줄 다이렉트 링크 준비
+                const fallbackLink = `https://www.law.go.kr/lsSc.do?menuId=1&query=${encodeURIComponent(currentQuery)}`;
+                
+                // 🚨 DONNA 스타일의 우아한 에러 대처 화면 함수
+                const showFallbackUI = () => {
+                    apiContent.innerHTML = `
+                        <div style="padding:15px; text-align:center;">
+                            <div style="color:#BFAA71; font-size:1.1rem; margin-bottom:10px; font-weight:bold;">🛡️ 정부 보안 방화벽 작동 중</div>
+                            <div style="color:#94A3B8; font-size:0.9rem; margin-bottom:20px; line-height:1.5;">
+                                현재 법제처 서버가 우회 통신망(해외 프록시)의 실시간 접근을 차단하고 있습니다.<br>
+                                DONNA가 분석한 공식 다이렉트 경로로 안전하게 안내합니다.
+                            </div>
+                            <a href="${fallbackLink}" target="_blank" class="fallback-btn">법제처 공식 원문 보기 ↗</a>
+                        </div>
+                    `;
+                };
+
                 if (MOLEG_API_KEY === "ohsm1023@gmail.com") {
                     apiContent.innerHTML = `<div class="api-loading"><span>⚠️ 인증키 입력 대기 중</span>코드 상단의 MOLEG_API_KEY 변수에 법제처 로그인 ID를 입력해주세요.</div>`;
                 } else {
@@ -120,44 +141,23 @@
                     
                     const timestamp = new Date().getTime();
                     const apiUrl = `https://www.law.go.kr/DRF/lawSearch.do?OC=${MOLEG_API_KEY}&target=law&type=XML&query=${encodeURIComponent(currentQuery)}&_cb=${timestamp}`;
-                    
-                    // 🚨 한글 호환성이 뛰어나고 캐싱 문제가 덜한 corsproxy.io 로 엔진 전면 교체
                     const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
                     
                     fetch(proxyUrl)
                         .then(response => {
-                            if (!response.ok) throw new Error(`HTTP 에러: ${response.status}`);
+                            // 522 차단 등 통신 실패 시 즉시 fallback 발동
+                            if (!response.ok) throw new Error("방화벽 차단됨");
                             return response.text();
                         })
                         .then(str => {
                             const xmlDoc = new window.DOMParser().parseFromString(str, "text/xml");
                             
-                            // 🚨 파싱 에러(한글 깨짐 등) 발생 시 디버깅 출력
-                            if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
-                                throw new Error("XML 파싱 실패: 데이터 인코딩이 깨졌습니다.");
-                            }
-
-                            // 🚨 법제처가 직접 거부 메시지를 보냈는지 확인
-                            const errorNode = xmlDoc.querySelector("message, errMsg, Error");
-                            if (errorNode) {
-                                apiContent.innerHTML = `<div style="text-align:center; color:#e74c3c; padding:20px;">🚨 통신 거부 (사유: ${errorNode.textContent})<br>인증키 미승인 또는 트래픽 초과입니다.</div>`;
-                                return;
-                            }
-
-                            const laws = xmlDoc.querySelectorAll("law");
-                            if (laws.length === 0) {
-                                // 🚨 결정적 디버깅 스캐너: 법이 없다고 나오면, 서버가 보낸 원문을 그대로 화면에 인쇄!
-                                const rawText = str.replace(/</g, "&lt;").replace(/>/g, "&gt;").substring(0, 300);
-                                apiContent.innerHTML = `
-                                    <div style="text-align:center; color:#94A3B8; padding:20px;">
-                                        '${currentQuery}'에 대한 검색 결과가 없습니다.<br><br>
-                                        <div style="background:#0B111A; padding:15px; border-radius:4px; text-align:left; font-size:0.8rem; color:#64748B; margin-top:15px; overflow-wrap:break-word;">
-                                            <b>[디버깅: 정부 서버 응답 원문]</b><br>${rawText}...
-                                        </div>
-                                    </div>`;
-                                return;
+                            // 에러 노드나 파싱 에러 발생 시 fallback 발동
+                            if (xmlDoc.getElementsByTagName("parsererror").length > 0 || xmlDoc.querySelector("message, errMsg, Error") || xmlDoc.querySelectorAll("law").length === 0) {
+                                throw new Error("유효한 법령 데이터를 받지 못함");
                             }
                             
+                            const laws = xmlDoc.querySelectorAll("law");
                             let html = "";
                             for(let i=0; i<Math.min(laws.length, 5); i++) {
                                 const lawName = laws[i].querySelector("법령명한글")?.textContent || "이름 없음";
@@ -174,8 +174,9 @@
                             apiContent.innerHTML = html;
                         })
                         .catch(error => {
-                            console.error("API 연동 에러:", error);
-                            apiContent.innerHTML = `<div style="color:#e74c3c; text-align:center; padding:20px;">API 통신 중 오류가 발생했습니다. (사유: ${error.message})<br>정부 서버의 해외 IP 차단이 원인일 수 있습니다.</div>`;
+                            // 🚨 방화벽 차단 또는 파싱 실패 시 준비된 DONNA의 대안 UI 표시
+                            console.error("API 연동 제한:", error);
+                            showFallbackUI();
                         });
                 }
             } else {
