@@ -4,28 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DONNA - Legal Compliance Intelligence</title>
+    <script src="donna_db.js"></script>
     <style>
-        /* 프리미엄 미드나잇 네이비 & 골드 테마 */
         body { background-color: #0B111A; color: #E2E8F0; font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; display: flex; min-height: 100vh; margin: 0; }
-        
-        /* 사이드바 */
         .news-sidebar { width: 380px; background-color: #0F172A; border-right: 1px solid #1E293B; padding: 30px 20px; display: flex; flex-direction: column; box-sizing: border-box; box-shadow: 2px 0 10px rgba(0,0,0,0.2); z-index: 50; }
         .news-header { font-size: 1.2rem; font-weight: bold; color: #BFAA71; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #1E293B; padding-bottom: 10px; letter-spacing: 0.5px; }
-        
-        /* 뉴스레터 검색창 및 자동완성 (신규) */
         .nl-search-wrapper { position: relative; width: 100%; margin-bottom: 20px; }
         .nl-search-box { display: flex; gap: 10px; width: 100%; }
         .nl-search-box input { flex: 1; padding: 12px; border-radius: 4px; border: 1px solid #334155; background: #1E293B; color: #F8FAFC; outline: none; transition: 0.3s; width: 100%; box-sizing: border-box; }
         .nl-search-box input:focus { border-color: #BFAA71; }
         .nl-search-box button { padding: 10px 20px; background: #BFAA71; border: none; border-radius: 4px; color: #0B111A; font-weight: bold; cursor: pointer; transition: 0.3s; white-space: nowrap; }
         .nl-search-box button:hover { background: #D4C391; }
-        
         .nl-autocomplete-list { position: absolute; top: 100%; left: 0; width: calc(100% - 70px); background-color: #1E293B; border: 1px solid #BFAA71; border-top: none; border-radius: 0 0 8px 8px; z-index: 1000; max-height: 250px; overflow-y: auto; display: none; box-shadow: 0 8px 16px rgba(0,0,0,0.4); margin-top: 5px; }
         .nl-autocomplete-item { padding: 10px 15px; cursor: pointer; color: #E2E8F0; font-size: 0.9rem; border-bottom: 1px solid #334155; }
         .nl-autocomplete-item:last-child { border-bottom: none; }
         .nl-autocomplete-item:hover { background-color: #2A3B53; color: #BFAA71; }
-        
-        /* 뉴스 카드 */
         .news-results { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding-right: 5px; }
         .news-card { background-color: #162032; border: 1px solid #2A3B53; border-radius: 6px; padding: 18px; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .news-card:hover { border-color: #BFAA71; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
@@ -33,12 +26,8 @@
         .news-title { font-size: 0.95rem; font-weight: bold; line-height: 1.5; margin-bottom: 15px; color: #F8FAFC; }
         .news-link { display: inline-block; color: #0B111A; background-color: #BFAA71; text-decoration: none; padding: 8px 15px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; transition: 0.3s; }
         .news-link:hover { background-color: #D4C391; }
-        
-        /* 메인 컨텐츠 영역 */
         .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; box-sizing: border-box; position: relative; z-index: 10; }
         h1 { font-size: 2.8rem; margin-bottom: 2rem; letter-spacing: 4px; color: #BFAA71; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        
-        /* 메인 검색창 및 자동완성 */
         .search-container { width: 100%; max-width: 650px; display: flex; margin-bottom: 4rem; position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.2); border-radius: 30px; z-index: 100; }
         .input-wrapper { flex: 1; position: relative; display: flex; }
         .search-box { flex: 1; padding: 18px 25px; font-size: 1.1rem; border: 1px solid #334155; border-radius: 30px 0 0 30px; background-color: #1E293B; color: #F8FAFC; outline: none; transition: 0.3s; }
@@ -46,13 +35,10 @@
         .search-box::placeholder { color: #64748B; }
         .search-btn { padding: 15px 35px; font-size: 1.1rem; border: none; border-radius: 0 30px 30px 0; background-color: #BFAA71; color: #0B111A; cursor: pointer; font-weight: bold; transition: 0.3s; letter-spacing: 1px; }
         .search-btn:hover { background-color: #D4C391; }
-        
         .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background-color: #1E293B; border: 1px solid #BFAA71; border-top: none; border-radius: 0 0 20px 20px; z-index: 1000; max-height: 300px; overflow-y: auto; display: none; box-shadow: 0 8px 16px rgba(0,0,0,0.4); margin-top: -10px; padding-top: 15px; }
         .autocomplete-item { padding: 12px 25px; cursor: pointer; color: #E2E8F0; display: flex; align-items: center; gap: 15px; font-size: 1rem; border-bottom: 1px solid #334155; }
         .autocomplete-item:last-child { border-bottom: none; }
         .autocomplete-item:hover { background-color: #2A3B53; color: #BFAA71; }
-        
-        /* 카테고리 그리드 */
         .grid-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; width: 100%; max-width: 1000px; z-index: 1; }
         .category-box { width: calc(25% - 20px); min-width: 200px; background-color: #162032; border: 1px solid #2A3B53; border-radius: 8px; padding: 25px 15px; text-align: center; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .category-box:hover { transform: translateY(-5px); border-color: #BFAA71; box-shadow: 0 8px 15px rgba(191, 170, 113, 0.15); }
@@ -65,10 +51,8 @@
     </style>
 </head>
 <body>
-
     <aside class="news-sidebar">
         <div class="news-header">📰 실시간 법무 뉴스레터 검색</div>
-        
         <div class="nl-search-wrapper">
             <div class="nl-search-box">
                 <input type="text" id="newsletterInput" placeholder="예: 부동산 규제, AI Act" autocomplete="off" onkeypress="if(event.key === 'Enter') searchNewsletter()">
@@ -76,7 +60,6 @@
             </div>
             <div id="nlAutocompleteList" class="nl-autocomplete-list"></div>
         </div>
-        
         <div class="news-results" id="newsletterResults">
             <div style="color:#64748B; font-size:0.9rem; text-align:center; margin-top:50px; line-height:1.6;">관심 키워드를 검색하면<br>국내외 Top 로펌 및 기관 자료를<br>동시에 찾아드립니다.</div>
         </div>
@@ -84,7 +67,6 @@
 
     <main class="main-content">
         <h1>DONNA</h1>
-        
         <div class="search-container">
             <div class="input-wrapper">
                 <input type="text" id="searchInput" class="search-box" placeholder="법령, 판례, 규제 동향 통합 리서치" autocomplete="off" onkeypress="if(event.key === 'Enter') performMainSearch()">
@@ -105,7 +87,6 @@
     </main>
 
     <script>
-        // 뉴스레터 검색 실행 함수
         function searchNewsletter() {
             const q = document.getElementById('newsletterInput').value;
             if (!q.trim()) return;
@@ -113,148 +94,53 @@
             const encodedQ = encodeURIComponent(`"${q}"`); 
             
             resultsDiv.innerHTML = `
-                <div class="news-card">
-                    <span class="news-badge" style="background-color: #334155;">김·장/율촌/광장/태평양/세종</span>
-                    <div class="news-title">국내 5대 로펌 '${q}' 뉴스레터 통합검색</div>
-                    <a href="https://www.google.com/search?q=site:kimchang.com+OR+site:yulchon.com+OR+site:shinkim.com+OR+site:bkl.co.kr+OR+site:leeko.com+${encodedQ}+뉴스레터" target="_blank" class="news-link">로펌 레터 보기 ↗</a>
-                </div>
-                <div class="news-card">
-                    <span class="news-badge" style="background-color: #475569;">Kirkland / Latham / Skadden / Baker</span>
-                    <div class="news-title">Global Big Law '${q}' Insight & Client Alert</div>
-                    <a href="https://www.google.com/search?q=site:kirkland.com+OR+site:lw.com+OR+site:skadden.com+OR+site:bakermckenzie.com+OR+site:whitecase.com+${encodedQ}+"Client+Alert"+OR+newsletter" target="_blank" class="news-link">Global Insight ↗</a>
-                </div>
-                <div class="news-card">
-                    <span class="news-badge" style="background-color: #1E293B; border: 1px solid #475569;">법률신문 / 리걸타임즈</span>
-                    <div class="news-title">법률 미디어 '${q}' 기사 및 레터</div>
-                    <a href="https://www.google.com/search?q=site:lawtimes.co.kr+OR+site:legaltimes.co.kr+${encodedQ}" target="_blank" class="news-link">미디어 동향 보기 ↗</a>
-                </div>
-                <div class="news-card">
-                    <span class="news-badge" style="background-color: #0F172A; border: 1px solid #334155;">Lexology / Law.com</span>
-                    <div class="news-title">Global Legal Intelligence '${q}' Reports</div>
-                    <a href="https://www.google.com/search?q=site:lexology.com+OR+site:law.com+${encodedQ}" target="_blank" class="news-link">Global Reports ↗</a>
-                </div>
+                <div class="news-card"><span class="news-badge" style="background-color: #334155;">김·장/율촌/광장/태평양/세종</span><div class="news-title">국내 5대 로펌 '${q}' 뉴스레터 통합검색</div><a href="https://www.google.com/search?q=site:kimchang.com+OR+site:yulchon.com+OR+site:shinkim.com+OR+site:bkl.co.kr+OR+site:leeko.com+${encodedQ}+뉴스레터" target="_blank" class="news-link">로펌 레터 보기 ↗</a></div>
+                <div class="news-card"><span class="news-badge" style="background-color: #475569;">Kirkland / Latham / Skadden / Baker</span><div class="news-title">Global Big Law '${q}' Insight & Client Alert</div><a href="https://www.google.com/search?q=site:kirkland.com+OR+site:lw.com+OR+site:skadden.com+OR+site:bakermckenzie.com+OR+site:whitecase.com+${encodedQ}+"Client+Alert"+OR+newsletter" target="_blank" class="news-link">Global Insight ↗</a></div>
+                <div class="news-card"><span class="news-badge" style="background-color: #1E293B; border: 1px solid #475569;">법률신문 / 리걸타임즈</span><div class="news-title">법률 미디어 '${q}' 기사 및 레터</div><a href="https://www.google.com/search?q=site:lawtimes.co.kr+OR+site:legaltimes.co.kr+${encodedQ}" target="_blank" class="news-link">미디어 동향 보기 ↗</a></div>
+                <div class="news-card"><span class="news-badge" style="background-color: #0F172A; border: 1px solid #334155;">Lexology / Law.com</span><div class="news-title">Global Legal Intelligence '${q}' Reports</div><a href="https://www.google.com/search?q=site:lexology.com+OR+site:law.com+${encodedQ}" target="_blank" class="news-link">Global Reports ↗</a></div>
             `;
             document.getElementById('nlAutocompleteList').style.display = 'none';
         }
 
-        // 🚨 DONNA 전용 글로벌 컴플라이언스 & 법무 DB (대폭 확장)
-        // 🚨 DONNA v2.0 글로벌 대용량 하이브리드 법무 DB (약 400+ 키워드)
-        const legalKeywords = [
-            // 1. ESG & 기후변화 (ESG & Climate)
-            "ESG 경영", "Climate Change", "Climate Litigation", "기후 소송", "Greenwashing", "그린워싱", "탄소중립", "Net Zero", "RE100", 
-            "CBAM (Carbon Border Adjustment Mechanism)", "탄소국경조정제도", "CSDDD (Corporate Sustainability Due Diligence Directive)", "공급망실사법", 
-            "CSRD (Corporate Sustainability Reporting Directive)", "ESG 공시", "지속가능경영보고서", "인권실사", "Scope 3 탄소배출", "생물다양성", "탄소배출권",
-
-            // 2. 글로벌 컴플라이언스 & 반부패 (Global Compliance & Anti-Corruption)
-            "Compliance Program (CP)", "컴플라이언스 프로그램", "자율준수", "내부통제", "이사회 의무", "경영판단의 원칙 (Business Judgment Rule)", 
-            "Anti-Corruption", "FCPA (해외부패방지법)", "UKBA (영국 뇌물방지법)", "청탁금지법 (김영란법)", "자금세탁방지 (AML)", "KYC (Know Your Customer)", 
-            "Whistleblowing", "내부고발자 보호", "경제제재 (Economic Sanctions)", "OFAC 제재", "수출통제 (Export Control)", "횡령 및 배임", "이해상충 (Conflict of Interest)",
-
-            // 3. 공정거래 & 독점규제 (Antitrust & Competition)
-            "공정거래법", "Monopoly (독점)", "Cartel (담합)", "시장지배적지위 남용", "불공정거래행위", "부당지원행위", "계열사 부당지원", "일감 몰아주기", 
-            "기업결합 심사 (M&A Clearance)", "하도급법", "가맹사업법", "대리점법", "표시광고법", "약관규제법", "불공정 약관", "전속고발권", "리니언시 (Leniency)",
-
-            // 4. 국제통상 & 국제중재 (International Trade & Dispute)
-            "WTO Dispute Settlement", "GATT", "Anti-Dumping (반덤핑)", "Safeguard (세이프가드)", "상계관세 (Countervailing Duties)", "FTA (자유무역협정)", 
-            "ISDS (Investor-State Dispute Settlement)", "투자자-국가 분쟁", "국제상사중재", "ICC Rules", "UNCITRAL", "국제사법재판소 (ICJ)", "국제형사재판소 (ICC)",
-            "CISG (국제물품매매계약에 관한 유엔협약)", "Incoterms (인코텀즈)", "L/C (신용장)", "Force Majeure (불가항력)", "Hardship (사정변경)", "Governing Law (준거법)", "Jurisdiction (관할)",
-
-            // 5. 미국법 & 소송 절차 (US Law & Litigation)
-            "Attorney Client Privilege", "변호사-의뢰인 비닉특권", "Work Product Doctrine", "Discovery (디스커버리)", "e-Discovery (전자증거개시)", 
-            "Deposition (증언녹취)", "Subpoena (소환장)", "Class Action (집단소송)", "Punitive Damages (징벌적 손해배상)", "Torts (불법행위법)", "Negligence (과실)", 
-            "Strict Liability (무과실책임)", "Injunction (가처분/금지명령)", "Statute of Limitations (소멸시효)", "Summary Judgment (약식판결)", "Due Process (적법절차)",
-
-            // 6. IT, 데이터, 프라이버시 (IT, Data & Privacy)
-            "GDPR (일반데이터보호규정)", "개인정보보호법", "데이터3법", "마이데이터", "망분리 규제", "EU AI Act", "인공지능법", "DMA (Digital Markets Act)", 
-            "DSA (Digital Services Act)", "정보통신망법", "위치정보법", "랜섬웨어", "데이터 유출 (Data Breach)", "CISO (정보보호최고책임자)", "잊힐 권리", "쿠키 규제",
-
-            // 7. 지식재산권 & 기술보호 (IP & Technology)
-            "Patent Troll (특허괴물)", "Trade Secret (영업비밀)", "영업비밀 보호법", "부정경쟁방지법", "직무발명", "상표권 침해", "저작권법", "디자인보호법", 
-            "특허 침해 소송", "라이선스 계약", "NDA (비밀유지계약)", "Non-compete (경업금지약정)", "오픈소스 라이선스", "기술탈취", "IP 실사",
-
-            // 8. 기업법무 일반 & M&A (Corporate & M&A)
-            "M&A (인수합병)", "Due Diligence (기업실사)", "LBO (차입매수)", "지주회사", "합작투자 (Joint Venture)", "경영권 방어", "Poison Pill (포이즌필)", 
-            "차등의결권", "스튜어드십 코드", "주주총회", "Proxy Fight (위임장 대결)", "소수주주권", "배당", "회사 분할", "주식교환", "정관 변경",
-
-            // 9. 노동 & 인사 (Labor & Employment)
-            "중대재해처벌법", "산업안전보건법", "근로기준법", "통상임금", "최저임금", "주52시간제", "직장내 괴롭힘", "성희롱 예방", "부당해고", "노동조합법", 
-            "쟁의행위", "단체교섭", "파견법", "불법파견", "기간제 근로자", "취업규칙 불이익 변경", "임금피크제",
-
-            // 10. 민사, 상법 & 행정 절차 (Civil, Commercial & Administrative)
-            "민사소송법", "민사집행법", "소유권이전등기", "부동산등기법", "손해배상", "채무불이행", "가압류", "가처분", "강제집행", "채권자취소권", 
-            "계약법", "상법", "행정소송", "집행정지", "위헌법률심판", "헌법소원", "법제처 유권해석", "감사원 감사", "규제 샌드박스",
-
-            // 11. 소비재/F&B 특화 리스크 (Consumer Goods / F&B Specific)
-            "식품위생법", "주류면허법", "주세법", "원산지표시법", "식품표시광고법", "용기포장 규제", "PL법 (제조물책임법)", "리콜 (Recall)", "소비자 집단소송", "가맹사업법"
-        ];
-
-        // 1. 메인 검색창 자동완성 세팅
         const searchInput = document.getElementById('searchInput');
         const autocompleteList = document.getElementById('autocompleteList');
-
-        // 2. 좌측 뉴스레터 검색창 자동완성 세팅
         const nlInput = document.getElementById('newsletterInput');
         const nlAutocompleteList = document.getElementById('nlAutocompleteList');
 
-        // 구글식 실시간 필터링 함수 (공용)
+        // donna_db.js에서 불러온 legalKeywords 배열 사용
         function setupAutocomplete(inputElement, listElement, isMainSearch) {
             inputElement.addEventListener('input', function() {
                 const val = this.value.toLowerCase();
-                listElement.innerHTML = ''; // 기존 리스트 초기화
+                listElement.innerHTML = ''; 
+                if (!val) { listElement.style.display = 'none'; return; }
                 
-                if (!val) { 
-                    listElement.style.display = 'none'; 
-                    return; 
-                }
-                
-                // 입력한 글자가 포함된 단어만 필터링 (구글 검색창 원리)
                 const filtered = legalKeywords.filter(k => k.toLowerCase().includes(val));
-                
                 if (filtered.length > 0) {
                     listElement.style.display = 'block';
                     filtered.forEach(k => {
                         const d = document.createElement('div');
-                        // 디자인을 위해 클래스명 동적 할당
                         d.className = isMainSearch ? 'autocomplete-item' : 'nl-autocomplete-item';
-                        
-                        // 입력한 글자 부분만 BOLD(진하게) 처리하는 디테일 추가
                         const regex = new RegExp(`(${val})`, "gi");
-                        const highlightedText = k.replace(regex, "<strong style='color:#BFAA71;'>$1</strong>");
-                        
-                        d.innerHTML = `🔍 ${highlightedText}`;
-                        
-                        // 항목 클릭 시 검색창에 입력되고 즉시 검색 실행
+                        d.innerHTML = `🔍 ` + k.replace(regex, "<strong style='color:#BFAA71;'>$1</strong>");
                         d.onclick = () => { 
-                            inputElement.value = k; 
-                            listElement.style.display = 'none'; 
-                            if(isMainSearch) {
-                                performMainSearch();
-                            } else {
-                                searchNewsletter();
-                            }
+                            inputElement.value = k; listElement.style.display = 'none'; 
+                            isMainSearch ? performMainSearch() : searchNewsletter();
                         };
                         listElement.appendChild(d);
                     });
-                } else { 
-                    listElement.style.display = 'none'; 
-                }
+                } else { listElement.style.display = 'none'; }
             });
         }
 
-        // 두 검색창에 모두 자동완성 기능 부착
-        setupAutocomplete(searchInput, autocompleteList, true);
-        setupAutocomplete(nlInput, nlAutocompleteList, false);
-
-        // 메인 리서치 실행 함수
-        function performMainSearch() {
-            const q = searchInput.value;
-            if (q.trim()) window.location.href = 'search_results.html?q=' + encodeURIComponent(q);
+        if(typeof legalKeywords !== 'undefined') {
+            setupAutocomplete(searchInput, autocompleteList, true);
+            setupAutocomplete(nlInput, nlAutocompleteList, false);
+        } else {
+            console.error("donna_db.js 파일이 로드되지 않았습니다!");
         }
-        
-        // 퀵 서치 아이콘 클릭 함수
+
+        function performMainSearch() { const q = searchInput.value; if (q.trim()) window.location.href = 'search_results.html?q=' + encodeURIComponent(q); }
         function quickSearch(q) { window.location.href = 'search_results.html?q=' + encodeURIComponent(q); }
-        
-        // 화면의 다른 곳을 클릭하면 자동완성 리스트 닫기
         document.addEventListener('click', (e) => { 
             if (e.target !== searchInput) autocompleteList.style.display = 'none'; 
             if (e.target !== nlInput) nlAutocompleteList.style.display = 'none';
