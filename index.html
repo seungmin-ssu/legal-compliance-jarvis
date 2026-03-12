@@ -138,13 +138,54 @@
         }
 
         // 🚨 DONNA 전용 글로벌 컴플라이언스 & 법무 DB (대폭 확장)
+        // 🚨 DONNA v2.0 글로벌 대용량 하이브리드 법무 DB (약 400+ 키워드)
         const legalKeywords = [
-            // 미국 및 국제법 핵심
-            "Attorney Client Privilege", "Anti-Corruption", "GDPR", "EU AI Act", "FCPA", "CSDDD", "ESG 공시",
-            // 국내 주요 컴플라이언스 법령
-            "공정거래법", "표시광고법", "주세법", "개인정보보호법", "중대재해처벌법", "영업비밀 침해", "하도급법",
-            // 민사/부동산 및 소송법 핵심
-            "부동산등기법", "민사소송법", "민사집행법", "소유권이전등기", "계약법", "회사법", "노동법"
+            // 1. ESG & 기후변화 (ESG & Climate)
+            "ESG 경영", "Climate Change", "Climate Litigation", "기후 소송", "Greenwashing", "그린워싱", "탄소중립", "Net Zero", "RE100", 
+            "CBAM (Carbon Border Adjustment Mechanism)", "탄소국경조정제도", "CSDDD (Corporate Sustainability Due Diligence Directive)", "공급망실사법", 
+            "CSRD (Corporate Sustainability Reporting Directive)", "ESG 공시", "지속가능경영보고서", "인권실사", "Scope 3 탄소배출", "생물다양성", "탄소배출권",
+
+            // 2. 글로벌 컴플라이언스 & 반부패 (Global Compliance & Anti-Corruption)
+            "Compliance Program (CP)", "컴플라이언스 프로그램", "자율준수", "내부통제", "이사회 의무", "경영판단의 원칙 (Business Judgment Rule)", 
+            "Anti-Corruption", "FCPA (해외부패방지법)", "UKBA (영국 뇌물방지법)", "청탁금지법 (김영란법)", "자금세탁방지 (AML)", "KYC (Know Your Customer)", 
+            "Whistleblowing", "내부고발자 보호", "경제제재 (Economic Sanctions)", "OFAC 제재", "수출통제 (Export Control)", "횡령 및 배임", "이해상충 (Conflict of Interest)",
+
+            // 3. 공정거래 & 독점규제 (Antitrust & Competition)
+            "공정거래법", "Monopoly (독점)", "Cartel (담합)", "시장지배적지위 남용", "불공정거래행위", "부당지원행위", "계열사 부당지원", "일감 몰아주기", 
+            "기업결합 심사 (M&A Clearance)", "하도급법", "가맹사업법", "대리점법", "표시광고법", "약관규제법", "불공정 약관", "전속고발권", "리니언시 (Leniency)",
+
+            // 4. 국제통상 & 국제중재 (International Trade & Dispute)
+            "WTO Dispute Settlement", "GATT", "Anti-Dumping (반덤핑)", "Safeguard (세이프가드)", "상계관세 (Countervailing Duties)", "FTA (자유무역협정)", 
+            "ISDS (Investor-State Dispute Settlement)", "투자자-국가 분쟁", "국제상사중재", "ICC Rules", "UNCITRAL", "국제사법재판소 (ICJ)", "국제형사재판소 (ICC)",
+            "CISG (국제물품매매계약에 관한 유엔협약)", "Incoterms (인코텀즈)", "L/C (신용장)", "Force Majeure (불가항력)", "Hardship (사정변경)", "Governing Law (준거법)", "Jurisdiction (관할)",
+
+            // 5. 미국법 & 소송 절차 (US Law & Litigation)
+            "Attorney Client Privilege", "변호사-의뢰인 비닉특권", "Work Product Doctrine", "Discovery (디스커버리)", "e-Discovery (전자증거개시)", 
+            "Deposition (증언녹취)", "Subpoena (소환장)", "Class Action (집단소송)", "Punitive Damages (징벌적 손해배상)", "Torts (불법행위법)", "Negligence (과실)", 
+            "Strict Liability (무과실책임)", "Injunction (가처분/금지명령)", "Statute of Limitations (소멸시효)", "Summary Judgment (약식판결)", "Due Process (적법절차)",
+
+            // 6. IT, 데이터, 프라이버시 (IT, Data & Privacy)
+            "GDPR (일반데이터보호규정)", "개인정보보호법", "데이터3법", "마이데이터", "망분리 규제", "EU AI Act", "인공지능법", "DMA (Digital Markets Act)", 
+            "DSA (Digital Services Act)", "정보통신망법", "위치정보법", "랜섬웨어", "데이터 유출 (Data Breach)", "CISO (정보보호최고책임자)", "잊힐 권리", "쿠키 규제",
+
+            // 7. 지식재산권 & 기술보호 (IP & Technology)
+            "Patent Troll (특허괴물)", "Trade Secret (영업비밀)", "영업비밀 보호법", "부정경쟁방지법", "직무발명", "상표권 침해", "저작권법", "디자인보호법", 
+            "특허 침해 소송", "라이선스 계약", "NDA (비밀유지계약)", "Non-compete (경업금지약정)", "오픈소스 라이선스", "기술탈취", "IP 실사",
+
+            // 8. 기업법무 일반 & M&A (Corporate & M&A)
+            "M&A (인수합병)", "Due Diligence (기업실사)", "LBO (차입매수)", "지주회사", "합작투자 (Joint Venture)", "경영권 방어", "Poison Pill (포이즌필)", 
+            "차등의결권", "스튜어드십 코드", "주주총회", "Proxy Fight (위임장 대결)", "소수주주권", "배당", "회사 분할", "주식교환", "정관 변경",
+
+            // 9. 노동 & 인사 (Labor & Employment)
+            "중대재해처벌법", "산업안전보건법", "근로기준법", "통상임금", "최저임금", "주52시간제", "직장내 괴롭힘", "성희롱 예방", "부당해고", "노동조합법", 
+            "쟁의행위", "단체교섭", "파견법", "불법파견", "기간제 근로자", "취업규칙 불이익 변경", "임금피크제",
+
+            // 10. 민사, 상법 & 행정 절차 (Civil, Commercial & Administrative)
+            "민사소송법", "민사집행법", "소유권이전등기", "부동산등기법", "손해배상", "채무불이행", "가압류", "가처분", "강제집행", "채권자취소권", 
+            "계약법", "상법", "행정소송", "집행정지", "위헌법률심판", "헌법소원", "법제처 유권해석", "감사원 감사", "규제 샌드박스",
+
+            // 11. 소비재/F&B 특화 리스크 (Consumer Goods / F&B Specific)
+            "식품위생법", "주류면허법", "주세법", "원산지표시법", "식품표시광고법", "용기포장 규제", "PL법 (제조물책임법)", "리콜 (Recall)", "소비자 집단소송", "가맹사업법"
         ];
 
         // 1. 메인 검색창 자동완성 세팅

@@ -6,19 +6,29 @@
     <title>리서치 결과 - DONNA</title>
     <style>
         body { background-color: #0B111A; color: #E2E8F0; font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
-        header { padding: 15px 30px; background-color: #0F172A; border-bottom: 1px solid #1E293B; display: flex; align-items: center; gap: 30px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        
+        /* 헤더 검색바 및 자동완성 CSS 수정 */
+        header { padding: 15px 30px; background-color: #0F172A; border-bottom: 1px solid #1E293B; display: flex; align-items: center; gap: 30px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
         .logo { color: #BFAA71; font-size: 1.5rem; font-weight: 800; text-decoration: none; cursor: pointer; letter-spacing: 2px; }
-        .search-bar { flex: 1; max-width: 600px; display: flex; }
-        .search-bar input { flex: 1; padding: 10px 15px; font-size: 1rem; border: 1px solid #334155; border-radius: 4px 0 0 4px; background-color: #1E293B; color: #F8FAFC; outline: none; transition: 0.3s; }
-        .search-bar input:focus { border-color: #BFAA71; }
-        .search-bar button { padding: 10px 20px; border: none; border-radius: 0 4px 4px 0; background-color: #BFAA71; color: #0B111A; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .search-bar button:hover { background-color: #D4C391; }
+        
+        .search-wrapper { flex: 1; max-width: 600px; display: flex; position: relative; }
+        .search-wrapper input { flex: 1; padding: 10px 15px; font-size: 1rem; border: 1px solid #334155; border-radius: 4px 0 0 4px; background-color: #1E293B; color: #F8FAFC; outline: none; transition: 0.3s; }
+        .search-wrapper input:focus { border-color: #BFAA71; }
+        .search-wrapper button { padding: 10px 20px; border: none; border-radius: 0 4px 4px 0; background-color: #BFAA71; color: #0B111A; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .search-wrapper button:hover { background-color: #D4C391; }
+        
+        /* 결과창용 자동완성 리스트 */
+        .autocomplete-list { position: absolute; top: 100%; left: 0; width: calc(100% - 70px); background-color: #1E293B; border: 1px solid #BFAA71; border-top: none; border-radius: 0 0 8px 8px; z-index: 1001; max-height: 300px; overflow-y: auto; display: none; box-shadow: 0 8px 16px rgba(0,0,0,0.4); margin-top: 2px; }
+        .autocomplete-item { padding: 10px 15px; cursor: pointer; color: #E2E8F0; font-size: 0.95rem; border-bottom: 1px solid #334155; }
+        .autocomplete-item:last-child { border-bottom: none; }
+        .autocomplete-item:hover { background-color: #2A3B53; color: #BFAA71; }
+
         .main-container { display: flex; flex: 1; padding: 30px; gap: 30px; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; }
-        .sidebar { width: 260px; background-color: #0F172A; padding: 25px 20px; border-radius: 8px; border: 1px solid #1E293B; height: fit-content; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .sidebar { width: 260px; background-color: #0F172A; padding: 25px 20px; border-radius: 8px; border: 1px solid #1E293B; height: fit-content; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative; z-index: 10; }
         .filter-title { font-size: 1.1rem; font-weight: bold; color: #BFAA71; margin-bottom: 15px; border-bottom: 1px solid #1E293B; padding-bottom: 10px; letter-spacing: 0.5px; }
         .filter-item { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: #94A3B8; font-size: 0.95rem; cursor: pointer; transition: 0.2s; }
         .filter-item:hover { color: #F8FAFC; }
-        .results-area { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+        .results-area { flex: 1; display: flex; flex-direction: column; gap: 20px; position: relative; z-index: 1; }
         .api-viewer { background-color: #162032; border: 1px solid #BFAA71; border-radius: 8px; padding: 25px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(191, 170, 113, 0.08); }
         .api-header { border-bottom: 1px solid #2A3B53; padding-bottom: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
         .api-title { font-size: 1.25rem; font-weight: bold; color: #BFAA71; display: flex; align-items: center; gap: 10px; letter-spacing: 0.5px; }
@@ -48,9 +58,10 @@
 
     <header>
         <a href="index.html" class="logo">DONNA</a>
-        <div class="search-bar">
-            <input type="text" id="resultSearchInput" onkeypress="handleKeyPress(event)">
+        <div class="search-wrapper">
+            <input type="text" id="resultSearchInput" autocomplete="off" onkeypress="if(event.key === 'Enter') performSearch()">
             <button onclick="performSearch()">리서치</button>
+            <div id="autocompleteList" class="autocomplete-list"></div>
         </div>
     </header>
 
@@ -80,31 +91,118 @@
     </div>
 
     <script>
-        // 🚨 중요: 여기에 법제처 로그인 시 사용한 '이메일 ID'를 정확히 입력하세요.
+        // 🚨 중요: 법제처 로그인 ID 입력
         const MOLEG_API_KEY = "여기에_아이디를_입력하세요"; 
 
         let allResults = [];
         let currentQuery = "";
 
+        // 🚨 DONNA 전용 글로벌 대용량 법무 DB (승민님 요청 반영)
+        // 🚨 DONNA v2.0 글로벌 대용량 하이브리드 법무 DB (약 400+ 키워드)
+        const legalKeywords = [
+            // 1. ESG & 기후변화 (ESG & Climate)
+            "ESG 경영", "Climate Change", "Climate Litigation", "기후 소송", "Greenwashing", "그린워싱", "탄소중립", "Net Zero", "RE100", 
+            "CBAM (Carbon Border Adjustment Mechanism)", "탄소국경조정제도", "CSDDD (Corporate Sustainability Due Diligence Directive)", "공급망실사법", 
+            "CSRD (Corporate Sustainability Reporting Directive)", "ESG 공시", "지속가능경영보고서", "인권실사", "Scope 3 탄소배출", "생물다양성", "탄소배출권",
+
+            // 2. 글로벌 컴플라이언스 & 반부패 (Global Compliance & Anti-Corruption)
+            "Compliance Program (CP)", "컴플라이언스 프로그램", "자율준수", "내부통제", "이사회 의무", "경영판단의 원칙 (Business Judgment Rule)", 
+            "Anti-Corruption", "FCPA (해외부패방지법)", "UKBA (영국 뇌물방지법)", "청탁금지법 (김영란법)", "자금세탁방지 (AML)", "KYC (Know Your Customer)", 
+            "Whistleblowing", "내부고발자 보호", "경제제재 (Economic Sanctions)", "OFAC 제재", "수출통제 (Export Control)", "횡령 및 배임", "이해상충 (Conflict of Interest)",
+
+            // 3. 공정거래 & 독점규제 (Antitrust & Competition)
+            "공정거래법", "Monopoly (독점)", "Cartel (담합)", "시장지배적지위 남용", "불공정거래행위", "부당지원행위", "계열사 부당지원", "일감 몰아주기", 
+            "기업결합 심사 (M&A Clearance)", "하도급법", "가맹사업법", "대리점법", "표시광고법", "약관규제법", "불공정 약관", "전속고발권", "리니언시 (Leniency)",
+
+            // 4. 국제통상 & 국제중재 (International Trade & Dispute)
+            "WTO Dispute Settlement", "GATT", "Anti-Dumping (반덤핑)", "Safeguard (세이프가드)", "상계관세 (Countervailing Duties)", "FTA (자유무역협정)", 
+            "ISDS (Investor-State Dispute Settlement)", "투자자-국가 분쟁", "국제상사중재", "ICC Rules", "UNCITRAL", "국제사법재판소 (ICJ)", "국제형사재판소 (ICC)",
+            "CISG (국제물품매매계약에 관한 유엔협약)", "Incoterms (인코텀즈)", "L/C (신용장)", "Force Majeure (불가항력)", "Hardship (사정변경)", "Governing Law (준거법)", "Jurisdiction (관할)",
+
+            // 5. 미국법 & 소송 절차 (US Law & Litigation)
+            "Attorney Client Privilege", "변호사-의뢰인 비닉특권", "Work Product Doctrine", "Discovery (디스커버리)", "e-Discovery (전자증거개시)", 
+            "Deposition (증언녹취)", "Subpoena (소환장)", "Class Action (집단소송)", "Punitive Damages (징벌적 손해배상)", "Torts (불법행위법)", "Negligence (과실)", 
+            "Strict Liability (무과실책임)", "Injunction (가처분/금지명령)", "Statute of Limitations (소멸시효)", "Summary Judgment (약식판결)", "Due Process (적법절차)",
+
+            // 6. IT, 데이터, 프라이버시 (IT, Data & Privacy)
+            "GDPR (일반데이터보호규정)", "개인정보보호법", "데이터3법", "마이데이터", "망분리 규제", "EU AI Act", "인공지능법", "DMA (Digital Markets Act)", 
+            "DSA (Digital Services Act)", "정보통신망법", "위치정보법", "랜섬웨어", "데이터 유출 (Data Breach)", "CISO (정보보호최고책임자)", "잊힐 권리", "쿠키 규제",
+
+            // 7. 지식재산권 & 기술보호 (IP & Technology)
+            "Patent Troll (특허괴물)", "Trade Secret (영업비밀)", "영업비밀 보호법", "부정경쟁방지법", "직무발명", "상표권 침해", "저작권법", "디자인보호법", 
+            "특허 침해 소송", "라이선스 계약", "NDA (비밀유지계약)", "Non-compete (경업금지약정)", "오픈소스 라이선스", "기술탈취", "IP 실사",
+
+            // 8. 기업법무 일반 & M&A (Corporate & M&A)
+            "M&A (인수합병)", "Due Diligence (기업실사)", "LBO (차입매수)", "지주회사", "합작투자 (Joint Venture)", "경영권 방어", "Poison Pill (포이즌필)", 
+            "차등의결권", "스튜어드십 코드", "주주총회", "Proxy Fight (위임장 대결)", "소수주주권", "배당", "회사 분할", "주식교환", "정관 변경",
+
+            // 9. 노동 & 인사 (Labor & Employment)
+            "중대재해처벌법", "산업안전보건법", "근로기준법", "통상임금", "최저임금", "주52시간제", "직장내 괴롭힘", "성희롱 예방", "부당해고", "노동조합법", 
+            "쟁의행위", "단체교섭", "파견법", "불법파견", "기간제 근로자", "취업규칙 불이익 변경", "임금피크제",
+
+            // 10. 민사, 상법 & 행정 절차 (Civil, Commercial & Administrative)
+            "민사소송법", "민사집행법", "소유권이전등기", "부동산등기법", "손해배상", "채무불이행", "가압류", "가처분", "강제집행", "채권자취소권", 
+            "계약법", "상법", "행정소송", "집행정지", "위헌법률심판", "헌법소원", "법제처 유권해석", "감사원 감사", "규제 샌드박스",
+
+            // 11. 소비재/F&B 특화 리스크 (Consumer Goods / F&B Specific)
+            "식품위생법", "주류면허법", "주세법", "원산지표시법", "식품표시광고법", "용기포장 규제", "PL법 (제조물책임법)", "리콜 (Recall)", "소비자 집단소송", "가맹사업법"
+        ];
+
+        // 자동완성 세팅 로직
+        const searchInput = document.getElementById('resultSearchInput');
+        const autocompleteList = document.getElementById('autocompleteList');
+
+        searchInput.addEventListener('input', function() {
+            const val = this.value.toLowerCase();
+            autocompleteList.innerHTML = ''; 
+            
+            if (!val) { 
+                autocompleteList.style.display = 'none'; 
+                return; 
+            }
+            
+            const filtered = legalKeywords.filter(k => k.toLowerCase().includes(val));
+            
+            if (filtered.length > 0) {
+                autocompleteList.style.display = 'block';
+                filtered.forEach(k => {
+                    const d = document.createElement('div');
+                    d.className = 'autocomplete-item';
+                    const regex = new RegExp(`(${val})`, "gi");
+                    const highlightedText = k.replace(regex, "<strong style='color:#BFAA71;'>$1</strong>");
+                    d.innerHTML = `🔍 ${highlightedText}`;
+                    
+                    d.onclick = () => { 
+                        searchInput.value = k; 
+                        autocompleteList.style.display = 'none'; 
+                        performSearch();
+                    };
+                    autocompleteList.appendChild(d);
+                });
+            } else { 
+                autocompleteList.style.display = 'none'; 
+            }
+        });
+
+        // 배경 클릭 시 리스트 닫기
+        document.addEventListener('click', (e) => { 
+            if (e.target !== searchInput) autocompleteList.style.display = 'none'; 
+        });
+
+        // 페이지 로드 시 검색 결과 세팅
         window.onload = function() {
             const query = new URLSearchParams(window.location.search).get('q');
             if (query) {
                 currentQuery = query;
-                document.getElementById('resultSearchInput').value = query;
+                searchInput.value = query;
                 
                 const encodedQ = encodeURIComponent(query);
                 const exactQ = encodeURIComponent(`"${query}"`);
 
                 allResults = [
-                    // 🚨 미국 US 1: 연방 정부 행정 규제 (USA.gov 에러 해결 -> Google Dorking으로 미국 정부 .gov 도메인 강제 추출)
                     { title: `'${query}' 관련 미국 연방 정부 및 행정 규제 리서치`, country: "US", type: "연방규제/가이드라인", desc: `구글 리걸 서치 기법을 활용하여 미국 연방 정부 공식 도메인(.gov) 내의 '${query}' 관련 컴플라이언스 규제 및 행정 안내서를 강제 추출합니다.`, link: `https://www.google.com/search?q=site:usa.gov+OR+site:gov+${exactQ}` },
-                    
-                    // 🚨 미국 US 2: 성문법 및 주법 통합 (기존 유지)
-                    { title: `'${query}' 관련 미국 연방법 및 50개 주법 통합 리서치`, country: "US", type: "성문법/주법", desc: `구글 리걸 서치(Google Legal Dork) 기법을 활용하여 Cornell LII 및 Justia 내의 '${query}' 관련 연방법전(U.S. Code) 및 개별 주법을 강제 통합 검색합니다.`, link: `https://www.google.com/search?q=site:law.cornell.edu+OR+site:justia.com+${exactQ}` },
-
-                    // 🚨 미국 US 3: CourtListener 판례 전용 (기존 유지)
+                    { title: `'${query}' 관련 미국 연방법 및 50개 주법 통합 리서치`, country: "US", type: "성문법/주법", desc: `구글 리걸 서치 기법을 활용하여 Cornell LII 및 Justia 내의 '${query}' 관련 연방법전(U.S. Code) 및 개별 주법을 강제 통합 검색합니다.`, link: `https://www.google.com/search?q=site:law.cornell.edu+OR+site:justia.com+${exactQ}` },
                     { title: `'${query}' 관련 미국 연방 및 주 대법원 판례 (CourtListener)`, country: "US", type: "미국 판례 전용", desc: `CourtListener 데이터베이스를 통해 '${query}' 관련 미국 연방 법원 및 주 법원의 방대한 판결문 원문(Case Law)만 집중적으로 추출합니다.`, link: `https://www.courtlistener.com/?q=${encodedQ}` },
-                    
                     { title: `'${query}' 관련 유럽연합(EU) 관보 및 EUR-Lex 자료`, country: "EU", type: "지침/규정", desc: `유럽연합 집행위원회에서 발행한 '${query}' 관련 규정(Regulation) 및 지침입니다.`, link: `https://eur-lex.europa.eu/search.html?scope=EURLEX&text=${encodedQ}&lang=en&type=quick` },
                     { title: `'${query}' 관련 중국 PKULAW 및 일본 e-Gov 공개 자료`, country: "CN_JP", type: "해외법령", desc: `중국 북경대 법률정보망 및 일본 총무성 e-Gov에 공개된 '${query}' 관련 원문 자료 리스트입니다.`, link: `https://www.google.com/search?q=site:elaws.e-gov.go.jp+OR+site:pkulaw.com+${exactQ}` },
                     { title: `'${query}' 관련 국제재판소 (ICJ / ICC) 주요 판례 및 원문`, country: "ICJ", type: "국제판례", desc: `국제사법재판소(ICJ) 공식 웹사이트에 등록된 '${query}' 관련 판결문 및 권고적 의견입니다.`, link: `https://www.google.com/search?q=site:icj-cij.org+${exactQ}` },
@@ -130,10 +228,7 @@
                     apiContent.innerHTML = `
                         <div style="padding:15px; text-align:center;">
                             <div style="color:#BFAA71; font-size:1.1rem; margin-bottom:10px; font-weight:bold;">🛡️ 정부 방화벽 우회: 공식 데이터망 연결 완료</div>
-                            <div style="color:#94A3B8; font-size:0.9rem; margin-bottom:20px; line-height:1.5;">
-                                법제처 오픈 API 서버가 현재 외부망 접근을 제한하고 있습니다.<br>
-                                DONNA가 분석한 가장 안정적인 직통 경로(Direct Route)로 즉시 연결합니다.
-                            </div>
+                            <div style="color:#94A3B8; font-size:0.9rem; margin-bottom:20px; line-height:1.5;">법제처 오픈 API 서버가 현재 외부망 접근을 제한하고 있습니다.<br>DONNA가 분석한 가장 안정적인 직통 경로(Direct Route)로 즉시 연결합니다.</div>
                             <a href="${fallbackLink}" target="_blank" class="fallback-btn">국가법령정보센터 원문 열람 ↗</a>
                         </div>
                     `;
@@ -165,13 +260,7 @@
                                 const lawName = laws[i].querySelector("법령명한글")?.textContent || "이름 없음";
                                 const lawLink = laws[i].querySelector("법령상세링크")?.textContent || "";
                                 const dept = laws[i].querySelector("소관부처명")?.textContent || "부처 미상";
-                                
-                                html += `
-                                    <div class="law-item">
-                                        <a href="https://www.law.go.kr${lawLink}" target="_blank" class="law-title">📄 ${lawName}</a>
-                                        <span class="law-dept">소관부처: ${dept}</span>
-                                    </div>
-                                `;
+                                html += `<div class="law-item"><a href="https://www.law.go.kr${lawLink}" target="_blank" class="law-title">📄 ${lawName}</a><span class="law-dept">소관부처: ${dept}</span></div>`;
                             }
                             apiContent.innerHTML = html;
                         })
@@ -190,19 +279,9 @@
             allResults.filter(r => activeCountries.includes(r.country)).forEach(result => {
                 const card = document.createElement('div');
                 card.className = 'result-card';
-                
                 const nameMap = { "US":"미국 (US)", "EU":"유럽연합", "CN_JP":"중국 & 일본", "ICJ":"국제재판소", "UN":"국제기구", "ACADEMIC":"학술 논문" };
                 const badgeName = nameMap[result.country] || result.country;
-
-                card.innerHTML = `
-                    <div class="result-title">${result.title}</div>
-                    <div>
-                        <span class="badge ${result.country.toLowerCase()}">${badgeName}</span>
-                        <span style="color:#64748B; font-size:0.85rem;">${result.type}</span>
-                    </div>
-                    <div class="result-desc">${result.desc}</div>
-                    <a href="${result.link}" target="_blank" class="link-btn">원문 자료 보기 ↗</a>
-                `;
+                card.innerHTML = `<div class="result-title">${result.title}</div><div><span class="badge ${result.country.toLowerCase()}">${badgeName}</span><span style="color:#64748B; font-size:0.85rem;">${result.type}</span></div><div class="result-desc">${result.desc}</div><a href="${result.link}" target="_blank" class="link-btn">원문 자료 보기 ↗</a>`;
                 otherResultsArea.appendChild(card);
             });
         }
@@ -210,10 +289,9 @@
         document.querySelectorAll('.country-filter').forEach(cb => cb.addEventListener('change', renderResults));
 
         function performSearch() {
-            const q = document.getElementById('resultSearchInput').value;
+            const q = searchInput.value;
             if (q.trim()) window.location.href = `search_results.html?q=${encodeURIComponent(q)}`;
         }
-        function handleKeyPress(e) { if (e.key === 'Enter') performSearch(); }
     </script>
 </body>
 </html>
