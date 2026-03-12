@@ -9,12 +9,12 @@
     <script src="donna_db.js"></script>
     
     <style>
-        /* 벤토 다크 테마 배경 */
+        /* 다크 테마 배경 */
         body { background-color: #05080F; color: #E2E8F0; font-family: 'Pretendard', 'Malgun Gothic', sans-serif; margin: 0; padding: 20px; height: 100vh; box-sizing: border-box; display: flex; gap: 20px; overflow: hidden; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 10px; }
         
-        /* 벤토 사이드바 (뉴스레터 복구) */
+        /* 좌측 뉴스레터 패널 */
         .news-sidebar { width: 380px; background: linear-gradient(145deg, #0F172A, #0B111A); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 30px; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.4); z-index: 50; }
         .news-header { font-size: 1.2rem; font-weight: bold; color: #BFAA71; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; letter-spacing: 0.5px; }
         
@@ -37,56 +37,46 @@
         .news-link { display: inline-block; color: #0B111A; background: #BFAA71; text-decoration: none; padding: 8px 15px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; transition: 0.3s; }
         .news-link:hover { box-shadow: 0 0 15px rgba(191,170,113,0.4); }
 
-        /* 메인 컨텐츠 패널 */
-        .main-content { flex: 1; background: linear-gradient(145deg, #0F172A, #080D16); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 50px 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); position: relative; overflow-y: auto; }
+        /* 우측 메인 컨텐츠 패널 (미니멀 검색 엔진 스타일) */
+        .main-content { flex: 1; background: linear-gradient(145deg, #0F172A, #080D16); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); position: relative; overflow-y: auto; }
         
-        /* 🌍 네온 글로벌 지구본 애니메이션 */
-        .globe-container { position: relative; width: 140px; height: 140px; margin-bottom: 20px; z-index: 10; display: flex; justify-content: center; align-items: center; }
-        .globe-sphere { width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #4F8AFF 0%, #0F4C81 50%, #0B111A 90%); box-shadow: 0 0 50px rgba(79, 138, 255, 0.4), inset -20px -20px 40px rgba(0,0,0,0.8); position: relative; overflow: hidden; }
-        
-        /* 대륙 텍스처 */
-        .globe-sphere::before { content: ''; position: absolute; width: 200%; height: 100%; background-image: radial-gradient(rgba(255,255,255,0.3) 1px, transparent 1px); background-size: 10px 10px; opacity: 0.5; border-radius: 50%; animation: spinMap 40s linear infinite; }
-        
-        /* 공전하는 궤도와 파티클 */
-        .orbit-ring { position: absolute; width: 220px; height: 220px; border-radius: 50%; border: 1px dashed rgba(79, 138, 255, 0.3); box-sizing: border-box; transform: rotateX(75deg) rotateY(15deg); animation: spinOrbit 15s linear infinite; }
-        .orbit-ring::after, .orbit-ring::before { content: ''; position: absolute; width: 6px; height: 6px; background: #BFAA71; border-radius: 50%; box-shadow: 0 0 15px #BFAA71, 0 0 30px #FDF5A9; }
-        .orbit-ring::after { top: 0; left: 50%; }
-        .orbit-ring::before { bottom: 0; right: 50%; }
-
-        @keyframes spinMap { 0% { background-position: 0 0; } 100% { background-position: 100px 0; } }
-        @keyframes spinOrbit { 100% { transform: rotateX(75deg) rotateY(15deg) rotateZ(360deg); } }
-
-        h1 { font-size: 3.2rem; margin-bottom: 2.5rem; letter-spacing: 6px; color: transparent; background: linear-gradient(90deg, #BFAA71, #FDF5A9); -webkit-background-clip: text; font-weight: 900; text-shadow: 0 10px 30px rgba(191,170,113,0.2); }
+        h1 { font-size: 4rem; margin-bottom: 2.5rem; letter-spacing: 8px; color: transparent; background: linear-gradient(90deg, #BFAA71, #FDF5A9); -webkit-background-clip: text; font-weight: 900; text-shadow: 0 10px 30px rgba(191,170,113,0.2); }
         
         /* 메인 검색창 */
-        .search-container { width: 100%; max-width: 700px; display: flex; margin-bottom: 4rem; position: relative; border-radius: 20px; background: #162032; border: 1px solid rgba(191,170,113,0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: 0.3s; z-index: 100; }
-        .search-container:focus-within { box-shadow: 0 0 30px rgba(191,170,113,0.2); border-color: #BFAA71; }
+        .search-container { width: 100%; max-width: 750px; display: flex; margin-bottom: 3rem; position: relative; border-radius: 20px; background: #162032; border: 1px solid rgba(191,170,113,0.3); box-shadow: 0 15px 40px rgba(0,0,0,0.4); transition: 0.3s; z-index: 100; }
+        .search-container:focus-within { box-shadow: 0 0 40px rgba(191,170,113,0.25); border-color: #BFAA71; }
         .input-wrapper { flex: 1; position: relative; display: flex; }
-        .search-box { flex: 1; padding: 20px 30px; font-size: 1.15rem; border: none; background: transparent; color: #F8FAFC; outline: none; border-radius: 20px 0 0 20px; }
-        .search-btn { padding: 0 40px; font-size: 1.1rem; border: none; border-radius: 0 20px 20px 0; background: linear-gradient(145deg, #BFAA71, #D4C391); color: #0B111A; cursor: pointer; font-weight: 800; transition: 0.3s; }
+        .search-box { flex: 1; padding: 22px 35px; font-size: 1.25rem; border: none; background: transparent; color: #F8FAFC; outline: none; border-radius: 20px 0 0 20px; letter-spacing: 0.5px; }
+        .search-btn { padding: 0 45px; font-size: 1.15rem; border: none; border-radius: 0 20px 20px 0; background: linear-gradient(145deg, #BFAA71, #D4C391); color: #0B111A; cursor: pointer; font-weight: 800; transition: 0.3s; }
         .search-btn:hover { background: #FDF5A9; box-shadow: 0 0 20px rgba(191,170,113,0.5); }
         
-        .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: rgba(15,23,42,0.95); backdrop-filter: blur(15px); border: 1px solid #BFAA71; border-radius: 16px; z-index: 1000; max-height: 300px; overflow-y: auto; display: none; box-shadow: 0 20px 50px rgba(0,0,0,0.6); margin-top: 15px; }
-        .autocomplete-item { padding: 15px 30px; cursor: pointer; color: #E2E8F0; display: flex; align-items: center; gap: 15px; font-size: 1.05rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: rgba(15,23,42,0.95); backdrop-filter: blur(15px); border: 1px solid #BFAA71; border-radius: 16px; z-index: 1000; max-height: 350px; overflow-y: auto; display: none; box-shadow: 0 20px 50px rgba(0,0,0,0.6); margin-top: 15px; }
+        .autocomplete-item { padding: 18px 35px; cursor: pointer; color: #E2E8F0; display: flex; align-items: center; gap: 15px; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .autocomplete-item:hover { background: rgba(191,170,113,0.1); color: #BFAA71; }
         
-        /* 벤토 그리드 */
-        .bento-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; max-width: 900px; }
-        .bento-box { background: linear-gradient(145deg, #131C2D, #0C121D); border: 1px solid rgba(255,255,255,0.03); border-radius: 24px; padding: 30px 20px; text-align: center; cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-        .bento-box::before { content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(191,170,113,0.1) 0%, transparent 70%); opacity: 0; transition: 0.4s; pointer-events: none; }
-        .bento-box:hover::before { opacity: 1; }
-        .bento-box:hover { transform: translateY(-8px); border-color: rgba(191,170,113,0.4); box-shadow: 0 15px 35px rgba(0,0,0,0.4), 0 0 20px rgba(191,170,113,0.15); }
+        /* 🌍 초대형 센터 지구본 (승민님 이미지 연동) */
+        .center-globe-wrapper { position: relative; width: 100%; max-width: 450px; aspect-ratio: 1 / 1; display: flex; justify-content: center; align-items: center; z-index: 10; margin-top: 1rem; }
         
-        .bento-wide { grid-column: span 3; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 30px; padding: 25px; }
-        .bento-wide .img-icon { margin-bottom: 0; }
+        .center-globe-image { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; 
+            border-radius: 50%;
+            /* 웅장하게 위아래로 부양하며 네온빛 뿜는 애니메이션 */
+            animation: floatGiantGlobe 8s ease-in-out infinite, pulseGiantGlow 5s alternate infinite; 
+            opacity: 0.9;
+        }
+
+        @keyframes floatGiantGlobe {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
         
-        .img-icon, .custom-icon { height: 45px; width: 45px; object-fit: contain; margin-bottom: 15px; z-index: 1; position: relative; }
-        .custom-icon path, .custom-icon circle { stroke: #BFAA71; }
-        .dual-flags { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
-        .dual-flags .img-icon { height: 35px; width: auto; }
-        
-        .category-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: #F8FAFC; z-index: 1; position: relative; }
-        .category-desc { font-size: 0.85rem; color: #64748B; line-height: 1.4; z-index: 1; position: relative; }
+        @keyframes pulseGiantGlow {
+            0% { filter: drop-shadow(0 0 20px rgba(79, 138, 255, 0.2)); }
+            100% { filter: drop-shadow(0 0 60px rgba(79, 138, 255, 0.6)); }
+        }
     </style>
 </head>
 <body>
@@ -107,12 +97,8 @@
 
     <main class="main-content">
         
-        <div class="globe-container">
-            <div class="globe-sphere"></div>
-            <div class="orbit-ring"></div>
-        </div>
-
         <h1>DONNA</h1>
+        
         <div class="search-container">
             <div class="input-wrapper">
                 <input type="text" id="searchInput" class="search-box" placeholder="법령, 판례, 규제 동향 통합 리서치" autocomplete="off" onkeypress="if(event.key === 'Enter') performMainSearch()">
@@ -121,23 +107,10 @@
             <button class="search-btn" onclick="performMainSearch()">리서치</button>
         </div>
         
-        <div class="bento-grid">
-            <div class="bento-box" onclick="quickSearch('대한민국')"><img src="https://flagcdn.com/w80/kr.png" class="img-icon"><div class="category-title">대한민국</div><div class="category-desc">법령, 판례, 부처 자료</div></div>
-            <div class="bento-box" onclick="quickSearch('미국')"><img src="https://flagcdn.com/w80/us.png" class="img-icon"><div class="category-title">미국 (US)</div><div class="category-desc">연방법, 판례, 기관 자료</div></div>
-            <div class="bento-box" onclick="quickSearch('유럽연합')"><img src="https://flagcdn.com/w80/eu.png" class="img-icon"><div class="category-title">유럽연합 (EU)</div><div class="category-desc">지침, 규정, 집행위 자료</div></div>
-            
-            <div class="bento-box" onclick="quickSearch('중국 일본')"><div class="dual-flags"><img src="https://flagcdn.com/w80/cn.png" class="img-icon"><img src="https://flagcdn.com/w80/jp.png" class="img-icon"></div><div class="category-title">중국 & 일본</div><div class="category-desc">주요 법령 및 판례</div></div>
-            <div class="bento-box" onclick="quickSearch('국제재판소')"><svg class="custom-icon" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke-width="3"/><path d="M50 20 V 80 M 25 35 Q 50 25 75 35 M 25 35 L 15 60 L 35 60 Z M 75 35 L 65 60 L 85 60 Z" fill="none" stroke-width="3"/></svg><div class="category-title">국제재판소</div><div class="category-desc">ICJ, ICC 등</div></div>
-            <div class="bento-box" onclick="quickSearch('UN')"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Flag_of_the_United_Nations.svg/120px-Flag_of_the_United_Nations.svg.png" class="img-icon" style="border-radius:50%;"><div class="category-title">국제기구 & NGO</div><div class="category-desc">UN, 공식 보고서</div></div>
-            
-            <div class="bento-box bento-wide" onclick="quickSearch('논문')">
-                <svg class="custom-icon" viewBox="0 0 100 100"><path d="M20 20 h60 v60 h-60 z M30 40 h40 M30 55 h40 M30 70 h20" fill="none" stroke-width="4"/></svg>
-                <div style="text-align: left;">
-                    <div class="category-title">학술 논문 리서치</div>
-                    <div class="category-desc">법학 등 융합 논문 및 Google Scholar 연동</div>
-                </div>
-            </div>
+        <div class="center-globe-wrapper">
+            <img src="globe.png" alt="Global Compliance" class="center-globe-image" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/120px-SNice.svg.png'; this.style.opacity='0.1';">
         </div>
+
     </main>
 
     <script>
@@ -172,11 +145,8 @@
                     filtered.forEach(k => {
                         const d = document.createElement('div');
                         d.className = isMainSearch ? 'autocomplete-item' : 'nl-autocomplete-item';
-                        
-                        // 🚨 템플릿 리터럴 문법 경고 우회 처리
                         const regex = new RegExp("(" + val + ")", "gi");
                         d.innerHTML = `🔍 ` + k.replace(regex, "<strong style='color:#BFAA71;'>$1</strong>");
-                        
                         d.onclick = () => { 
                             inputElement.value = k; listElement.style.display = 'none'; 
                             isMainSearch ? performMainSearch() : searchNewsletter();
@@ -195,7 +165,7 @@
         }
 
         function performMainSearch() { const q = searchInput.value; if (q.trim()) window.location.href = 'search_results.html?q=' + encodeURIComponent(q); }
-        function quickSearch(q) { window.location.href = 'search_results.html?q=' + encodeURIComponent(q); }
+        
         document.addEventListener('click', (e) => { 
             if (e.target !== searchInput) autocompleteList.style.display = 'none'; 
             if (e.target !== nlInput) nlAutocompleteList.style.display = 'none';
