@@ -3,217 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>리서치 결과 - DONNA</title>
+    <title>DONNA - Legal Compliance Intelligence</title>
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚖️</text></svg>">
-    
     <script src="donna_db.js"></script>
     
     <style>
-        body { background-color: #05080F; color: #E2E8F0; font-family: 'Pretendard', 'Malgun Gothic', sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; padding: 20px; box-sizing: border-box; gap: 20px; }
+        /* 벤토 다크 테마 배경 */
+        body { background-color: #05080F; color: #E2E8F0; font-family: 'Pretendard', 'Malgun Gothic', sans-serif; margin: 0; padding: 20px; height: 100vh; box-sizing: border-box; display: flex; gap: 20px; overflow: hidden; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 10px; }
         
-        /* 벤토 스타일 헤더 */
-        header { padding: 20px 30px; background: linear-gradient(145deg, #0F172A, #0B111A); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; display: flex; align-items: center; gap: 40px; position: sticky; top: 20px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .logo { color: #BFAA71; font-size: 1.8rem; font-weight: 900; text-decoration: none; cursor: pointer; letter-spacing: 3px; }
+        /* 벤토 사이드바 (뉴스레터 복구) */
+        .news-sidebar { width: 380px; background: linear-gradient(145deg, #0F172A, #0B111A); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 30px; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.4); z-index: 50; }
+        .news-header { font-size: 1.2rem; font-weight: bold; color: #BFAA71; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; letter-spacing: 0.5px; }
         
-        .search-wrapper { flex: 1; max-width: 700px; display: flex; position: relative; background: #162032; border-radius: 16px; border: 1px solid rgba(191,170,113,0.2); transition: 0.3s; }
-        .search-wrapper:focus-within { border-color: #BFAA71; box-shadow: 0 0 15px rgba(191,170,113,0.15); }
-        .search-wrapper input { flex: 1; padding: 15px 20px; font-size: 1.05rem; border: none; background: transparent; color: #F8FAFC; outline: none; }
-        .search-wrapper button { padding: 0 30px; border: none; border-radius: 0 16px 16px 0; background: rgba(191,170,113,0.1); color: #BFAA71; border-left: 1px solid rgba(191,170,113,0.2); font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .search-wrapper button:hover { background: #BFAA71; color: #0B111A; }
+        .nl-search-wrapper { position: relative; width: 100%; margin-bottom: 25px; }
+        .nl-search-box { display: flex; background: #162032; border-radius: 12px; border: 1px solid rgba(191,170,113,0.2); overflow: hidden; transition: 0.3s; }
+        .nl-search-box:focus-within { border-color: #BFAA71; box-shadow: 0 0 15px rgba(191,170,113,0.15); }
+        .nl-search-box input { flex: 1; padding: 15px; border: none; background: transparent; color: #F8FAFC; outline: none; }
+        .nl-search-box button { padding: 0 20px; background: rgba(191,170,113,0.1); border: none; border-left: 1px solid rgba(191,170,113,0.2); color: #BFAA71; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .nl-search-box button:hover { background: #BFAA71; color: #0B111A; }
         
-        .autocomplete-list { position: absolute; top: calc(100% + 10px); left: 0; width: 100%; background: rgba(15,23,42,0.95); backdrop-filter: blur(15px); border: 1px solid #BFAA71; border-radius: 16px; z-index: 1001; max-height: 300px; overflow-y: auto; display: none; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
-        .autocomplete-item { padding: 12px 20px; cursor: pointer; color: #E2E8F0; font-size: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .autocomplete-item:hover { background: rgba(191,170,113,0.1); color: #BFAA71; }
+        .nl-autocomplete-list { position: absolute; top: 100%; left: 0; width: 100%; background: rgba(15,23,42,0.95); backdrop-filter: blur(10px); border: 1px solid #BFAA71; border-radius: 12px; z-index: 1000; max-height: 250px; overflow-y: auto; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top: 8px; }
+        .nl-autocomplete-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
+        .nl-autocomplete-item:hover { background: rgba(191,170,113,0.1); color: #BFAA71; }
+        
+        .news-results { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding-right: 5px; }
+        .news-card { background: #131C2D; border: 1px solid rgba(255,255,255,0.03); border-radius: 16px; padding: 20px; transition: 0.3s; }
+        .news-card:hover { transform: translateY(-3px); border-color: rgba(191,170,113,0.3); background: #162238; }
+        .news-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; margin-bottom: 12px; color: #fff; background: rgba(255,255,255,0.1); }
+        .news-title { font-size: 0.95rem; font-weight: 600; line-height: 1.5; margin-bottom: 15px; }
+        .news-link { display: inline-block; color: #0B111A; background: #BFAA71; text-decoration: none; padding: 8px 15px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; transition: 0.3s; }
+        .news-link:hover { box-shadow: 0 0 15px rgba(191,170,113,0.4); }
 
-        /* 메인 영역 분할 */
-        .main-container { display: flex; flex: 1; gap: 20px; max-width: 1600px; margin: 0 auto; width: 100%; }
+        /* 메인 컨텐츠 패널 */
+        .main-content { flex: 1; background: linear-gradient(145deg, #0F172A, #080D16); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 50px 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); position: relative; overflow-y: auto; }
         
-        /* 벤토 사이드 필터 */
-        .sidebar { width: 280px; background: linear-gradient(145deg, #0F172A, #0B111A); padding: 30px 25px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); height: fit-content; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: sticky; top: 120px; z-index: 10; }
-        .filter-title { font-size: 1.2rem; font-weight: bold; color: #BFAA71; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px; letter-spacing: 0.5px; }
-        .filter-item { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; color: #94A3B8; font-size: 1rem; cursor: pointer; transition: 0.2s; }
-        .filter-item:hover { color: #F8FAFC; }
+        /* 🌍 네온 글로벌 지구본 애니메이션 */
+        .globe-container { position: relative; width: 140px; height: 140px; margin-bottom: 20px; z-index: 10; display: flex; justify-content: center; align-items: center; }
+        .globe-sphere { width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #4F8AFF 0%, #0F4C81 50%, #0B111A 90%); box-shadow: 0 0 50px rgba(79, 138, 255, 0.4), inset -20px -20px 40px rgba(0,0,0,0.8); position: relative; overflow: hidden; }
         
-        /* 결과 영역 */
-        .results-area { flex: 1; display: flex; flex-direction: column; gap: 20px; z-index: 1; }
+        /* 대륙 텍스처 */
+        .globe-sphere::before { content: ''; position: absolute; width: 200%; height: 100%; background-image: radial-gradient(rgba(255,255,255,0.3) 1px, transparent 1px); background-size: 10px 10px; opacity: 0.5; border-radius: 50%; animation: spinMap 40s linear infinite; }
         
-        /* API 뷰어 벤토박스 */
-        .api-viewer { background: linear-gradient(145deg, #131C2D, #0C121D); border: 1px solid rgba(191,170,113,0.3); border-radius: 24px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .api-header { border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .api-title { font-size: 1.3rem; font-weight: bold; color: #BFAA71; display: flex; align-items: center; gap: 10px; }
-        .api-content { background: rgba(15,23,42,0.5); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03); max-height: 400px; overflow-y: auto; }
-        .law-item { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.03); }
-        .law-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-        .law-title { font-size: 1.15rem; font-weight: bold; color: #F8FAFC; margin-bottom: 10px; display: block; text-decoration: none; transition: 0.2s; }
-        .law-title:hover { color: #BFAA71; text-decoration: underline; }
-        .law-dept { font-size: 0.85rem; color: #94A3B8; background: #1E293B; padding: 6px 12px; border-radius: 6px; }
+        /* 공전하는 궤도와 파티클 */
+        .orbit-ring { position: absolute; width: 220px; height: 220px; border-radius: 50%; border: 1px dashed rgba(79, 138, 255, 0.3); box-sizing: border-box; transform: rotateX(75deg) rotateY(15deg); animation: spinOrbit 15s linear infinite; }
+        .orbit-ring::after, .orbit-ring::before { content: ''; position: absolute; width: 6px; height: 6px; background: #BFAA71; border-radius: 50%; box-shadow: 0 0 15px #BFAA71, 0 0 30px #FDF5A9; }
+        .orbit-ring::after { top: 0; left: 50%; }
+        .orbit-ring::before { bottom: 0; right: 50%; }
+
+        @keyframes spinMap { 0% { background-position: 0 0; } 100% { background-position: 100px 0; } }
+        @keyframes spinOrbit { 100% { transform: rotateX(75deg) rotateY(15deg) rotateZ(360deg); } }
+
+        h1 { font-size: 3.2rem; margin-bottom: 2.5rem; letter-spacing: 6px; color: transparent; background: linear-gradient(90deg, #BFAA71, #FDF5A9); -webkit-background-clip: text; font-weight: 900; text-shadow: 0 10px 30px rgba(191,170,113,0.2); }
         
-        /* 검색 결과 카드 벤토박스 */
-        .result-card { background: linear-gradient(145deg, #131C2D, #0F172A); padding: 30px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 20px rgba(0,0,0,0.2); position: relative; overflow: hidden; }
-        .result-card::before { content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(191,170,113,0.05) 0%, transparent 70%); opacity: 0; transition: 0.4s; pointer-events: none; }
-        .result-card:hover::before { opacity: 1; }
-        .result-card:hover { transform: translateY(-5px); border-color: rgba(191,170,113,0.4); box-shadow: 0 15px 30px rgba(0,0,0,0.4); }
+        /* 메인 검색창 */
+        .search-container { width: 100%; max-width: 700px; display: flex; margin-bottom: 4rem; position: relative; border-radius: 20px; background: #162032; border: 1px solid rgba(191,170,113,0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: 0.3s; z-index: 100; }
+        .search-container:focus-within { box-shadow: 0 0 30px rgba(191,170,113,0.2); border-color: #BFAA71; }
+        .input-wrapper { flex: 1; position: relative; display: flex; }
+        .search-box { flex: 1; padding: 20px 30px; font-size: 1.15rem; border: none; background: transparent; color: #F8FAFC; outline: none; border-radius: 20px 0 0 20px; }
+        .search-btn { padding: 0 40px; font-size: 1.1rem; border: none; border-radius: 0 20px 20px 0; background: linear-gradient(145deg, #BFAA71, #D4C391); color: #0B111A; cursor: pointer; font-weight: 800; transition: 0.3s; }
+        .search-btn:hover { background: #FDF5A9; box-shadow: 0 0 20px rgba(191,170,113,0.5); }
         
-        .result-title { font-size: 1.3rem; font-weight: bold; color: #F8FAFC; margin-bottom: 15px; line-height: 1.4; }
-        .badge { padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; margin-right: 10px; color: #fff; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.05); }
-        .result-desc { font-size: 1rem; color: #94A3B8; line-height: 1.6; margin: 20px 0; }
-        .link-btn { display: inline-block; padding: 10px 22px; background: rgba(191,170,113,0.1); border: 1px solid rgba(191,170,113,0.5); color: #BFAA71; text-decoration: none; border-radius: 12px; font-size: 0.95rem; font-weight: bold; transition: 0.3s; }
-        .link-btn:hover { background: #BFAA71; color: #0B111A; box-shadow: 0 0 15px rgba(191,170,113,0.4); }
-        .fallback-btn { display: inline-block; padding: 12px 30px; background: #BFAA71; color: #0B111A; text-decoration: none; border-radius: 12px; font-weight: bold; transition: 0.3s; margin-top: 15px; }
-        .fallback-btn:hover { background: #D4C391; transform: translateY(-2px); box-shadow: 0 0 15px rgba(191,170,113,0.5); }
+        .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: rgba(15,23,42,0.95); backdrop-filter: blur(15px); border: 1px solid #BFAA71; border-radius: 16px; z-index: 1000; max-height: 300px; overflow-y: auto; display: none; box-shadow: 0 20px 50px rgba(0,0,0,0.6); margin-top: 15px; }
+        .autocomplete-item { padding: 15px 30px; cursor: pointer; color: #E2E8F0; display: flex; align-items: center; gap: 15px; font-size: 1.05rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .autocomplete-item:hover { background: rgba(191,170,113,0.1); color: #BFAA71; }
+        
+        /* 벤토 그리드 */
+        .bento-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; max-width: 900px; }
+        .bento-box { background: linear-gradient(145deg, #131C2D, #0C121D); border: 1px solid rgba(255,255,255,0.03); border-radius: 24px; padding: 30px 20px; text-align: center; cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .bento-box::before { content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(191,170,113,0.1) 0%, transparent 70%); opacity: 0; transition: 0.4s; pointer-events: none; }
+        .bento-box:hover::before { opacity: 1; }
+        .bento-box:hover { transform: translateY(-8px); border-color: rgba(191,170,113,0.4); box-shadow: 0 15px 35px rgba(0,0,0,0.4), 0 0 20px rgba(191,170,113,0.15); }
+        
+        .bento-wide { grid-column: span 3; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 30px; padding: 25px; }
+        .bento-wide .img-icon { margin-bottom: 0; }
+        
+        .img-icon, .custom-icon { height: 45px; width: 45px; object-fit: contain; margin-bottom: 15px; z-index: 1; position: relative; }
+        .custom-icon path, .custom-icon circle { stroke: #BFAA71; }
+        .dual-flags { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
+        .dual-flags .img-icon { height: 35px; width: auto; }
+        
+        .category-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: #F8FAFC; z-index: 1; position: relative; }
+        .category-desc { font-size: 0.85rem; color: #64748B; line-height: 1.4; z-index: 1; position: relative; }
     </style>
 </head>
 <body>
-
-    <header>
-        <a href="index.html" class="logo">DONNA</a>
-        <div class="search-wrapper">
-            <input type="text" id="resultSearchInput" autocomplete="off" onkeypress="if(event.key === 'Enter') performSearch()">
-            <button onclick="performSearch()">리서치</button>
-            <div id="autocompleteList" class="autocomplete-list"></div>
-        </div>
-    </header>
-
-    <div class="main-container">
-        <aside class="sidebar">
-            <div class="filter-title">Data Source Filter</div>
-            <label class="filter-item"><input type="checkbox" class="country-filter" value="KR" checked> 대한민국 (API 연동)</label>
-            <label class="filter-item"><input type="checkbox" class="country-filter" value="US" checked> 미국 (US)</label>
-            <label class="filter-item"><input type="checkbox" class="country-filter" value="EU" checked> 유럽연합 (EU)</label>
-            <label class="filter-item"><input type="checkbox" class="country-filter" value="CN_JP" checked> 중국 & 일본</label>
-            <label class="filter-item"><input type="checkbox" class="country-filter" value="ICJ" checked> 국제재판소</label>
-            <label class="filter-item"><input type="checkbox" class="country-filter" value="UN" checked> 국제기구 (UN)</label>
-            <label class="filter-item"><input type="checkbox" class="country-filter" value="ACADEMIC" checked> 학술 논문</label>
-        </aside>
-
-        <main class="results-area" id="resultsArea">
-            <div id="krApiSection" class="api-viewer" style="display: none;">
-                <div class="api-header">
-                    <div class="api-title">🇰🇷 대한민국 국가법령 다이렉트 브리핑</div>
-                    <span style="font-size: 0.85rem; color: #94A3B8;">Source: 법제처 OpenAPI</span>
-                </div>
-                <div id="krApiContent" class="api-content"></div>
+    
+    <aside class="news-sidebar">
+        <div class="news-header">📰 실시간 법무 뉴스레터</div>
+        <div class="nl-search-wrapper">
+            <div class="nl-search-box">
+                <input type="text" id="newsletterInput" placeholder="예: 부동산 규제, AI Act" autocomplete="off" onkeypress="if(event.key === 'Enter') searchNewsletter()">
+                <button onclick="searchNewsletter()">검색</button>
             </div>
-            <div id="otherResultsArea"></div>
-        </main>
-    </div>
+            <div id="nlAutocompleteList" class="nl-autocomplete-list"></div>
+        </div>
+        <div class="news-results" id="newsletterResults">
+            <div style="color:#64748B; font-size:0.9rem; text-align:center; margin-top:50px; line-height:1.6;">관심 키워드를 검색하면<br>국내외 Top 로펌 및 기관 자료를<br>동시에 찾아드립니다.</div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        
+        <div class="globe-container">
+            <div class="globe-sphere"></div>
+            <div class="orbit-ring"></div>
+        </div>
+
+        <h1>DONNA</h1>
+        <div class="search-container">
+            <div class="input-wrapper">
+                <input type="text" id="searchInput" class="search-box" placeholder="법령, 판례, 규제 동향 통합 리서치" autocomplete="off" onkeypress="if(event.key === 'Enter') performMainSearch()">
+                <div id="autocompleteList" class="autocomplete-list"></div>
+            </div>
+            <button class="search-btn" onclick="performMainSearch()">리서치</button>
+        </div>
+        
+        <div class="bento-grid">
+            <div class="bento-box" onclick="quickSearch('대한민국')"><img src="https://flagcdn.com/w80/kr.png" class="img-icon"><div class="category-title">대한민국</div><div class="category-desc">법령, 판례, 부처 자료</div></div>
+            <div class="bento-box" onclick="quickSearch('미국')"><img src="https://flagcdn.com/w80/us.png" class="img-icon"><div class="category-title">미국 (US)</div><div class="category-desc">연방법, 판례, 기관 자료</div></div>
+            <div class="bento-box" onclick="quickSearch('유럽연합')"><img src="https://flagcdn.com/w80/eu.png" class="img-icon"><div class="category-title">유럽연합 (EU)</div><div class="category-desc">지침, 규정, 집행위 자료</div></div>
+            
+            <div class="bento-box" onclick="quickSearch('중국 일본')"><div class="dual-flags"><img src="https://flagcdn.com/w80/cn.png" class="img-icon"><img src="https://flagcdn.com/w80/jp.png" class="img-icon"></div><div class="category-title">중국 & 일본</div><div class="category-desc">주요 법령 및 판례</div></div>
+            <div class="bento-box" onclick="quickSearch('국제재판소')"><svg class="custom-icon" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke-width="3"/><path d="M50 20 V 80 M 25 35 Q 50 25 75 35 M 25 35 L 15 60 L 35 60 Z M 75 35 L 65 60 L 85 60 Z" fill="none" stroke-width="3"/></svg><div class="category-title">국제재판소</div><div class="category-desc">ICJ, ICC 등</div></div>
+            <div class="bento-box" onclick="quickSearch('UN')"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Flag_of_the_United_Nations.svg/120px-Flag_of_the_United_Nations.svg.png" class="img-icon" style="border-radius:50%;"><div class="category-title">국제기구 & NGO</div><div class="category-desc">UN, 공식 보고서</div></div>
+            
+            <div class="bento-box bento-wide" onclick="quickSearch('논문')">
+                <svg class="custom-icon" viewBox="0 0 100 100"><path d="M20 20 h60 v60 h-60 z M30 40 h40 M30 55 h40 M30 70 h20" fill="none" stroke-width="4"/></svg>
+                <div style="text-align: left;">
+                    <div class="category-title">학술 논문 리서치</div>
+                    <div class="category-desc">법학 등 융합 논문 및 Google Scholar 연동</div>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <script>
-        // 🚨 아이디 입력 잊지 마세요!
-        const MOLEG_API_KEY = "여기에_아이디를_입력하세요"; 
-        
-        let allResults = [];
-        let currentQuery = "";
+        function searchNewsletter() {
+            const q = document.getElementById('newsletterInput').value;
+            if (!q.trim()) return;
+            const resultsDiv = document.getElementById('newsletterResults');
+            const encodedQ = encodeURIComponent(`"${q}"`); 
+            
+            resultsDiv.innerHTML = `
+                <div class="news-card"><span class="news-badge" style="background-color: #334155;">김·장/율촌/광장/태평양/세종</span><div class="news-title">국내 5대 로펌 '${q}' 뉴스레터</div><a href="https://www.google.com/search?q=site:kimchang.com+OR+site:yulchon.com+OR+site:shinkim.com+OR+site:bkl.co.kr+OR+site:leeko.com+${encodedQ}+뉴스레터" target="_blank" class="news-link">자료 보기 ↗</a></div>
+                <div class="news-card"><span class="news-badge" style="background-color: #475569;">Kirkland / Latham / Skadden</span><div class="news-title">Global Big Law '${q}' Insight</div><a href="https://www.google.com/search?q=site:kirkland.com+OR+site:lw.com+OR+site:skadden.com+OR+site:bakermckenzie.com+OR+site:whitecase.com+${encodedQ}+%22Client+Alert%22+OR+newsletter" target="_blank" class="news-link">Insight 보기 ↗</a></div>
+                <div class="news-card"><span class="news-badge" style="background-color: #1E293B; border: 1px solid #475569;">법률신문 / 리걸타임즈</span><div class="news-title">법률 미디어 '${q}' 기사</div><a href="https://www.google.com/search?q=site:lawtimes.co.kr+OR+site:legaltimes.co.kr+${encodedQ}" target="_blank" class="news-link">기사 보기 ↗</a></div>
+            `;
+            document.getElementById('nlAutocompleteList').style.display = 'none';
+        }
 
-        const searchInput = document.getElementById('resultSearchInput');
+        const searchInput = document.getElementById('searchInput');
         const autocompleteList = document.getElementById('autocompleteList');
+        const nlInput = document.getElementById('newsletterInput');
+        const nlAutocompleteList = document.getElementById('nlAutocompleteList');
 
-        if(typeof legalKeywords !== 'undefined') {
-            searchInput.addEventListener('input', function() {
+        function setupAutocomplete(inputElement, listElement, isMainSearch) {
+            inputElement.addEventListener('input', function() {
                 const val = this.value.toLowerCase();
-                autocompleteList.innerHTML = ''; 
-                if (!val) { autocompleteList.style.display = 'none'; return; }
+                listElement.innerHTML = ''; 
+                if (!val) { listElement.style.display = 'none'; return; }
                 
                 const filtered = legalKeywords.filter(k => k.toLowerCase().includes(val));
                 if (filtered.length > 0) {
-                    autocompleteList.style.display = 'block';
+                    listElement.style.display = 'block';
                     filtered.forEach(k => {
                         const d = document.createElement('div');
-                        d.className = 'autocomplete-item';
-                        const regex = new RegExp(`(${val})`, "gi");
+                        d.className = isMainSearch ? 'autocomplete-item' : 'nl-autocomplete-item';
+                        
+                        // 🚨 템플릿 리터럴 문법 경고 우회 처리
+                        const regex = new RegExp("(" + val + ")", "gi");
                         d.innerHTML = `🔍 ` + k.replace(regex, "<strong style='color:#BFAA71;'>$1</strong>");
+                        
                         d.onclick = () => { 
-                            searchInput.value = k; autocompleteList.style.display = 'none'; performSearch();
+                            inputElement.value = k; listElement.style.display = 'none'; 
+                            isMainSearch ? performMainSearch() : searchNewsletter();
                         };
-                        autocompleteList.appendChild(d);
+                        listElement.appendChild(d);
                     });
-                } else { autocompleteList.style.display = 'none'; }
+                } else { listElement.style.display = 'none'; }
             });
         }
 
+        if(typeof legalKeywords !== 'undefined') {
+            setupAutocomplete(searchInput, autocompleteList, true);
+            setupAutocomplete(nlInput, nlAutocompleteList, false);
+        } else {
+            console.error("donna_db.js 파일이 로드되지 않았습니다!");
+        }
+
+        function performMainSearch() { const q = searchInput.value; if (q.trim()) window.location.href = 'search_results.html?q=' + encodeURIComponent(q); }
+        function quickSearch(q) { window.location.href = 'search_results.html?q=' + encodeURIComponent(q); }
         document.addEventListener('click', (e) => { 
             if (e.target !== searchInput) autocompleteList.style.display = 'none'; 
+            if (e.target !== nlInput) nlAutocompleteList.style.display = 'none';
         });
-
-        window.onload = function() {
-            const query = new URLSearchParams(window.location.search).get('q');
-            if (query) {
-                currentQuery = query;
-                searchInput.value = query;
-                const encodedQ = encodeURIComponent(query);
-                const exactQ = encodeURIComponent(`"${query}"`);
-
-                allResults = [
-                    { title: `'${query}' 관련 미국 연방 정부 및 행정 규제 리서치`, country: "US", type: "연방규제/가이드라인", desc: `구글 리걸 서치 기법을 활용하여 미국 연방 정부 공식 도메인(.gov) 내의 '${query}' 관련 컴플라이언스 규제 및 행정 안내서를 강제 추출합니다.`, link: `https://www.google.com/search?q=site:usa.gov+OR+site:gov+${exactQ}` },
-                    { title: `'${query}' 관련 미국 연방법 및 50개 주법 통합 리서치`, country: "US", type: "성문법/주법", desc: `구글 리걸 서치 기법을 활용하여 Cornell LII 및 Justia 내의 '${query}' 관련 연방법전(U.S. Code) 및 개별 주법을 강제 통합 검색합니다.`, link: `https://www.google.com/search?q=site:law.cornell.edu+OR+site:justia.com+${exactQ}` },
-                    { title: `'${query}' 관련 미국 연방 및 주 대법원 판례 (CourtListener)`, country: "US", type: "미국 판례 전용", desc: `CourtListener 데이터베이스를 통해 '${query}' 관련 미국 연방 법원 및 주 법원의 방대한 판결문 원문(Case Law)만 집중적으로 추출합니다.`, link: `https://www.courtlistener.com/?q=${encodedQ}` },
-                    { title: `'${query}' 관련 유럽연합(EU) 관보 및 EUR-Lex 자료`, country: "EU", type: "지침/규정", desc: `유럽연합 집행위원회에서 발행한 '${query}' 관련 규정(Regulation) 및 지침입니다.`, link: `https://eur-lex.europa.eu/search.html?scope=EURLEX&text=${encodedQ}&lang=en&type=quick` },
-                    { title: `'${query}' 관련 중국 PKULAW 및 일본 e-Gov 공개 자료`, country: "CN_JP", type: "해외법령", desc: `중국 북경대 법률정보망 및 일본 총무성 e-Gov에 공개된 '${query}' 관련 원문 자료 리스트입니다.`, link: `https://www.google.com/search?q=site:elaws.e-gov.go.jp+OR+site:pkulaw.com+${exactQ}` },
-                    { title: `'${query}' 관련 국제재판소 (ICJ / ICC) 주요 판례 및 원문`, country: "ICJ", type: "국제판례", desc: `국제사법재판소(ICJ) 공식 웹사이트에 등록된 '${query}' 관련 판결문 및 권고적 의견입니다.`, link: `https://www.google.com/search?q=site:icj-cij.org+${exactQ}` },
-                    { title: `'${query}' 관련 UN 공식 문서 및 국제 협약 원문`, country: "UN", type: "국제기구", desc: `유엔 공식 문서 시스템(ODS) 및 공식 웹사이트에 공개된 '${query}' 관련 PDF 및 보고서 목록입니다.`, link: `https://www.google.com/search?q=site:un.org+OR+site:documents.un.org+${exactQ}` },
-                    { title: `'${query}' 관련 주요 학술 논문 (Google Scholar)`, country: "ACADEMIC", type: "학술논문", desc: `국내외 법학 및 컴플라이언스 관련 '${query}' 학술 논문 및 연구 자료입니다.`, link: `https://scholar.google.co.kr/scholar?q=${encodedQ}` }
-                ];
-                renderResults();
-            }
-        };
-
-        function renderResults() {
-            const activeCountries = Array.from(document.querySelectorAll('.country-filter:checked')).map(cb => cb.value);
-            const apiSection = document.getElementById('krApiSection');
-            const apiContent = document.getElementById('krApiContent');
-            
-            if (activeCountries.includes("KR")) {
-                apiSection.style.display = "block";
-                const fallbackLink = `https://www.law.go.kr/lsSc.do?section=&menuId=1&subMenuId=15&tabMenuId=81&query=${encodeURIComponent(currentQuery)}`;
-                const showFallbackUI = () => {
-                    apiContent.innerHTML = `<div style="padding:15px; text-align:center;"><div style="color:#BFAA71; font-size:1.1rem; margin-bottom:10px; font-weight:bold;">🛡️ 정부 방화벽 우회: 공식 데이터망 연결 완료</div><div style="color:#94A3B8; font-size:0.95rem; margin-bottom:20px; line-height:1.5;">법제처 오픈 API 서버가 현재 외부망 접근을 제한하고 있습니다.<br>DONNA가 분석한 가장 안정적인 직통 경로(Direct Route)로 즉시 연결합니다.</div><a href="${fallbackLink}" target="_blank" class="fallback-btn">국가법령정보센터 원문 열람 ↗</a></div>`;
-                };
-
-                if (MOLEG_API_KEY === "여기에_아이디를_입력하세요") {
-                    apiContent.innerHTML = `<div class="api-loading"><span style="color:#BFAA71; font-size:1.5rem; display:block; margin-bottom:10px;">⚠️</span><span style="display:block; font-size:1.1rem; color:#F8FAFC; margin-bottom:5px;">인증키 입력 대기 중</span><span style="font-size:0.9rem;">코드 상단의 MOLEG_API_KEY 변수에 법제처 로그인 ID를 입력해주세요.</span></div>`;
-                } else {
-                    apiContent.innerHTML = `<div class="api-loading"><span style="color:#BFAA71; font-size:1.5rem; display:block; margin-bottom:10px;">📡</span><span style="display:block; font-size:1.1rem; color:#F8FAFC; margin-bottom:5px;">Data Fetching...</span><span style="font-size:0.9rem;">법제처 공공데이터 서버와 실시간 통신 중입니다.</span></div>`;
-                    const timestamp = new Date().getTime();
-                    const apiUrl = `https://www.law.go.kr/DRF/lawSearch.do?OC=${MOLEG_API_KEY}&target=law&type=XML&query=${encodeURIComponent(currentQuery)}&_cb=${timestamp}`;
-                    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
-                    
-                    fetch(proxyUrl)
-                        .then(response => { if (!response.ok) throw new Error("방화벽 차단됨"); return response.text(); })
-                        .then(str => {
-                            const xmlDoc = new window.DOMParser().parseFromString(str, "text/xml");
-                            if (xmlDoc.getElementsByTagName("parsererror").length > 0 || xmlDoc.querySelector("message, errMsg, Error") || xmlDoc.querySelectorAll("law").length === 0) throw new Error("유효한 데이터 없음");
-                            
-                            const laws = xmlDoc.querySelectorAll("law");
-                            let html = "";
-                            for(let i=0; i<Math.min(laws.length, 5); i++) {
-                                const lawName = laws[i].querySelector("법령명한글")?.textContent || "이름 없음";
-                                const lawLink = laws[i].querySelector("법령상세링크")?.textContent || "";
-                                const dept = laws[i].querySelector("소관부처명")?.textContent || "부처 미상";
-                                html += `<div class="law-item"><a href="https://www.law.go.kr${lawLink}" target="_blank" class="law-title">📄 ${lawName}</a><span class="law-dept">소관부처: ${dept}</span></div>`;
-                            }
-                            apiContent.innerHTML = html;
-                        })
-                        .catch(error => { showFallbackUI(); });
-                }
-            } else {
-                apiSection.style.display = "none";
-            }
-
-            const otherResultsArea = document.getElementById('otherResultsArea');
-            otherResultsArea.innerHTML = "";
-            allResults.filter(r => activeCountries.includes(r.country)).forEach(result => {
-                const card = document.createElement('div');
-                card.className = 'result-card';
-                const nameMap = { "US":"미국 (US)", "EU":"유럽연합", "CN_JP":"중국 & 일본", "ICJ":"국제재판소", "UN":"국제기구", "ACADEMIC":"학술 논문" };
-                const badgeName = nameMap[result.country] || result.country;
-                card.innerHTML = `<div class="result-title">${result.title}</div><div style="margin-bottom:15px;"><span class="badge ${result.country.toLowerCase()}">${badgeName}</span><span style="color:#64748B; font-size:0.85rem;">${result.type}</span></div><div class="result-desc">${result.desc}</div><a href="${result.link}" target="_blank" class="link-btn">원문 자료 보기 ↗</a>`;
-                otherResultsArea.appendChild(card);
-            });
-        }
-
-        document.querySelectorAll('.country-filter').forEach(cb => cb.addEventListener('change', renderResults));
-        function performSearch() { const q = searchInput.value; if (q.trim()) window.location.href = `search_results.html?q=${encodeURIComponent(q)}`; }
     </script>
 </body>
 </html>
