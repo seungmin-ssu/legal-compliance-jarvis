@@ -10,16 +10,15 @@
     <script src="donna_db.js"></script>
     
     <style>
-        /* 메인 화면과 동일한 다크 테마 배경 */
+        /* 다크 테마 배경 */
         body { background-color: #05080F; color: #E2E8F0; font-family: 'Pretendard', 'Malgun Gothic', sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; padding: 20px; box-sizing: border-box; gap: 20px; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 10px; }
         
-        /* 벤토 스타일 헤더 (플로팅) */
+        /* 헤더 */
         header { padding: 20px 30px; background: linear-gradient(145deg, #0F172A, #0B111A); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; display: flex; align-items: center; gap: 40px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
         .logo { color: #BFAA71; font-size: 1.8rem; font-weight: 900; text-decoration: none; cursor: pointer; letter-spacing: 3px; text-shadow: 0 0 10px rgba(191,170,113,0.3); }
         
-        /* 결과창 상단 검색바 */
         .search-wrapper { flex: 1; max-width: 700px; display: flex; position: relative; background: #162032; border-radius: 16px; border: 1px solid rgba(191,170,113,0.2); transition: 0.3s; }
         .search-wrapper:focus-within { border-color: #BFAA71; box-shadow: 0 0 20px rgba(191,170,113,0.2); }
         .search-wrapper input { flex: 1; padding: 16px 25px; font-size: 1.1rem; border: none; background: transparent; color: #F8FAFC; outline: none; letter-spacing: 0.5px; }
@@ -31,19 +30,18 @@
         .autocomplete-item:last-child { border-bottom: none; }
         .autocomplete-item:hover { background: rgba(191,170,113,0.1); color: #BFAA71; }
 
-        /* 메인 컨테이너 */
         .main-container { display: flex; flex: 1; gap: 30px; max-width: 1400px; margin: 0 auto; width: 100%; }
         
-        /* 좌측 벤토 사이드바 (필터) */
+        /* 필터 */
         .sidebar { width: 280px; background: linear-gradient(145deg, #0F172A, #0B111A); padding: 35px 25px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); height: fit-content; box-shadow: 0 15px 40px rgba(0,0,0,0.3); position: sticky; top: 120px; z-index: 10; }
         .filter-title { font-size: 1.15rem; font-weight: bold; color: #BFAA71; margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px; letter-spacing: 0.5px; }
         .filter-item { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; color: #94A3B8; font-size: 1.05rem; cursor: pointer; transition: 0.2s; }
         .filter-item:hover { color: #F8FAFC; transform: translateX(5px); }
         
-        /* 우측 결과 영역 */
+        /* 결과 영역 */
         .results-area { flex: 1; display: flex; flex-direction: column; gap: 25px; z-index: 1; padding-bottom: 40px; }
         
-        /* 대한민국 API 전용 벤토 카드 */
+        /* 카드 디자인 */
         .api-viewer { background: linear-gradient(145deg, #131C2D, #0C121D); border: 1px solid rgba(191,170,113,0.3); border-radius: 24px; padding: 35px; box-shadow: 0 15px 40px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
         .api-viewer::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #BFAA71, #FDF5A9); }
         .api-header { border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
@@ -55,7 +53,6 @@
         .law-title:hover { color: #BFAA71; text-decoration: underline; }
         .law-dept { font-size: 0.85rem; color: #94A3B8; background: #1E293B; padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); }
         
-        /* 일반 리서치 결과 벤토 카드 */
         .result-card { background: linear-gradient(145deg, #131C2D, #0F172A); padding: 35px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.03); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 20px rgba(0,0,0,0.2); position: relative; overflow: hidden; }
         .result-card::before { content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(191,170,113,0.05) 0%, transparent 70%); opacity: 0; transition: 0.4s; pointer-events: none; }
         .result-card:hover::before { opacity: 1; }
@@ -63,8 +60,6 @@
         
         .result-title { font-size: 1.35rem; font-weight: bold; color: #F8FAFC; margin-bottom: 18px; line-height: 1.4; }
         .badge { padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; margin-right: 12px; color: #fff; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.05); letter-spacing: 0.5px; }
-        .badge.us { background-color: rgba(51, 65, 85, 0.8); } 
-        .badge.eu { background-color: rgba(30, 41, 59, 0.8); } 
         .result-desc { font-size: 1.05rem; color: #94A3B8; line-height: 1.6; margin: 20px 0; }
         
         .link-btn { display: inline-block; padding: 12px 25px; background: rgba(191,170,113,0.05); border: 1px solid rgba(191,170,113,0.4); color: #BFAA71; text-decoration: none; border-radius: 12px; font-size: 0.95rem; font-weight: bold; transition: 0.3s; }
@@ -109,7 +104,6 @@
     </div>
 
     <script>
-        // 🚨 중요: 법제처 오픈 API 아이디 입력
         const MOLEG_API_KEY = "여기에_아이디를_입력하세요"; 
         
         let allResults = [];
@@ -132,7 +126,6 @@
                         d.className = 'autocomplete-item';
                         const regex = new RegExp("(" + val + ")", "gi");
                         
-                        // 🚨 자간 깨짐 완벽 방지 (span 처리)
                         const highlightedText = k.replace(regex, "<strong style='color:#BFAA71;'>$1</strong>");
                         d.innerHTML = `<span style="opacity:0.7;">🔍</span> <span>${highlightedText}</span>`;
                         
@@ -154,18 +147,47 @@
             if (query) {
                 currentQuery = query;
                 searchInput.value = query;
-                const encodedQ = encodeURIComponent(query);
-                const exactQ = encodeURIComponent(`"${query}"`);
+
+                // --- 🚨 핵심 해결 코드 시작 ---
+                // 검색어에서 영어와 숫자(알파벳 문자열)만 추출하는 마법의 세탁기 코드
+                const englishWords = query.match(/[A-Za-z0-9]+/g);
+                let englishOnlyQuery = "";
+                if (englishWords) {
+                    // 영어 단어가 있다면, 공백으로 합쳐서 영어로만 구성된 검색어를 만듭니다.
+                    englishOnlyQuery = englishWords.join(" ");
+                } else {
+                    // 만약 아예 영어 없이 한글만 있다면, 어쩔 수 없이 원본을 유지합니다.
+                    englishOnlyQuery = query;
+                }
+
+                // 🚨 해외 쪽 검색에 사용할 인코딩된 '영어 검색어'
+                const encodedEnglishQ = encodeURIComponent(englishOnlyQuery);
+                const exactEnglishQ = encodeURIComponent(`"${englishOnlyQuery}"`);
+                // --- 🚨 핵심 해결 코드 끝 ---
+
+                // 대한민국 API 등에 사용할 '원본 검색어'
+                const encodedOriginalQ = encodeURIComponent(query);
+                const exactOriginalQ = encodeURIComponent(`"${query}"`);
 
                 allResults = [
-                    { title: `'${query}' 관련 미국 연방 정부 및 행정 규제 리서치`, country: "US", type: "연방규제/가이드라인", desc: `구글 리걸 서치 기법을 활용하여 미국 연방 정부 공식 도메인(.gov) 내의 '${query}' 관련 컴플라이언스 규제 및 행정 안내서를 강제 추출합니다.`, link: `https://www.google.com/search?q=site:usa.gov+OR+site:gov+${exactQ}` },
-                    { title: `'${query}' 관련 미국 연방법 및 50개 주법 통합 리서치`, country: "US", type: "성문법/주법", desc: `구글 리걸 서치 기법을 활용하여 Cornell LII 및 Justia 내의 '${query}' 관련 연방법전(U.S. Code) 및 개별 주법을 강제 통합 검색합니다.`, link: `https://www.google.com/search?q=site:law.cornell.edu+OR+site:justia.com+${exactQ}` },
-                    { title: `'${query}' 관련 미국 연방 및 주 대법원 판례 (CourtListener)`, country: "US", type: "미국 판례 전용", desc: `CourtListener 데이터베이스를 통해 '${query}' 관련 미국 연방 법원 및 주 법원의 방대한 판결문 원문(Case Law)만 집중적으로 추출합니다.`, link: `https://www.courtlistener.com/?q=${encodedQ}` },
-                    { title: `'${query}' 관련 유럽연합(EU) 관보 및 EUR-Lex 자료`, country: "EU", type: "지침/규정", desc: `유럽연합 집행위원회에서 발행한 '${query}' 관련 규정(Regulation) 및 지침입니다.`, link: `https://eur-lex.europa.eu/search.html?scope=EURLEX&text=${encodedQ}&lang=en&type=quick` },
-                    { title: `'${query}' 관련 중국 PKULAW 및 일본 e-Gov 공개 자료`, country: "CN_JP", type: "해외법령", desc: `중국 북경대 법률정보망 및 일본 총무성 e-Gov에 공개된 '${query}' 관련 원문 자료 리스트입니다.`, link: `https://www.google.com/search?q=site:elaws.e-gov.go.jp+OR+site:pkulaw.com+${exactQ}` },
-                    { title: `'${query}' 관련 국제재판소 (ICJ / ICC) 주요 판례 및 원문`, country: "ICJ", type: "국제판례", desc: `국제사법재판소(ICJ) 공식 웹사이트에 등록된 '${query}' 관련 판결문 및 권고적 의견입니다.`, link: `https://www.google.com/search?q=site:icj-cij.org+${exactQ}` },
-                    { title: `'${query}' 관련 UN 공식 문서 및 국제 협약 원문`, country: "UN", type: "국제기구", desc: `유엔 공식 문서 시스템(ODS) 및 공식 웹사이트에 공개된 '${query}' 관련 PDF 및 보고서 목록입니다.`, link: `https://www.google.com/search?q=site:un.org+OR+site:documents.un.org+${exactQ}` },
-                    { title: `'${query}' 관련 주요 학술 논문 (Google Scholar)`, country: "ACADEMIC", type: "학술논문", desc: `국내외 법학 및 컴플라이언스 관련 '${query}' 학술 논문 및 연구 자료입니다.`, link: `https://scholar.google.co.kr/scholar?q=${encodedQ}` }
+                    // 🚨 1. 대한민국 법령은 '원본 검색어'를 그대로 사용 (한글 검색)
+                    // ... (이미 하단 renderResults의 fallback UI에서 처리 중)
+
+                    // 🚨 2. 미국 연방 정부 검색: '영어 검색어'를 사용하여 site: 연산자 작동 보장
+                    { title: `'${query}' 관련 미국 연방 정부 및 행정 규제 리서치`, country: "US", type: "연방규제/가이드라인", desc: `미국 연방 정부 도메인(.gov) 내의 '${englishOnlyQuery}' 관련 자료를 타겟 검색합니다. (한/영 혼합 검색 시 영어 키워드 사용)`, link: `https://www.google.com/search?q=site:usa.gov+OR+site:gov+${exactEnglishQ}` },
+                    { title: `'${query}' 관련 미국 연방법 및 50개 주법 통합 리서치`, country: "US", type: "성문법/주법", desc: `Cornell LII 및 Justia 내의 '${englishOnlyQuery}' 관련 연방법전 및 개별 주법을 검색합니다.`, link: `https://www.google.com/search?q=site:law.cornell.edu+OR+site:justia.com+${exactEnglishQ}` },
+                    { title: `'${query}' 관련 미국 연방 및 주 대법원 판례 (CourtListener)`, country: "US", type: "미국 판례 전용", desc: `CourtListener 데이터베이스 내에서 '${englishOnlyQuery}' 관련 판결문을 검색합니다.`, link: `https://www.courtlistener.com/?q=${encodedEnglishQ}` },
+                    
+                    // 🚨 3. 유럽연합(EU) 검색: '영어 검색어'를 사용하여 영문 자료 타겟 검색
+                    { title: `'${query}' 관련 유럽연합(EU) 관보 및 EUR-Lex 자료`, country: "EU", type: "지침/규정", desc: `유럽연합 EUR-Lex 내의 '${englishOnlyQuery}' 관련 규정 및 지침을 검색합니다. (한/영 혼합 검색 시 영어 키워드 사용)`, link: `https://eur-lex.europa.eu/search.html?scope=EURLEX&text=${encodedEnglishQ}&lang=en&type=quick` },
+                    
+                    // 🚨 4. 중국/일본 검색: 역시 '영어 검색어'를 사용하여 해외 사이트 내 영문 안내 자료 위주 검색
+                    { title: `'${query}' 관련 중국 PKULAW 및 일본 e-Gov 공개 자료`, country: "CN_JP", type: "해외법령", desc: `중국 PKULAW 및 일본 총무성 e-Gov 내의 '${englishOnlyQuery}' 관련 영문 안내 자료를 검색합니다.`, link: `https://www.google.com/search?q=site:elaws.e-gov.go.jp+OR+site:pkulaw.com+${exactEnglishQ}` },
+                    
+                    // 🚨 5. 국제기구/판례: '영어 검색어'를 사용하여 공식 영문 자료 타겟 검색
+                    { title: `'${query}' 관련 국제재판소 (ICJ / ICC) 주요 판례 및 원문`, country: "ICJ", type: "국제판례", desc: `ICJ 및 ICC 공식 사이트 내의 '${englishOnlyQuery}' 관련 판결문을 검색합니다.`, link: `https://www.google.com/search?q=site:icj-cij.org+${exactEnglishQ}` },
+                    { title: `'${query}' 관련 UN 공식 문서 및 국제 협약 원문`, country: "UN", type: "국제기구", desc: `유엔 공식 문서 시스템 및 UN 도메인 내의 '${englishOnlyQuery}' 관련 공식 문서를 검색합니다.`, link: `https://www.google.com/search?q=site:un.org+OR+site:documents.un.org+${exactEnglishQ}` },
+                    { title: `'${query}' 관련 주요 학술 논문 (Google Scholar)`, country: "ACADEMIC", type: "학술논문", desc: `구글 스칼라 내의 '${englishOnlyQuery}' 관련 학술 논문을 검색합니다.`, link: `https://scholar.google.co.kr/scholar?q=${encodedEnglishQ}` }
                 ];
                 renderResults();
             }
@@ -178,6 +200,7 @@
             
             if (activeCountries.includes("KR")) {
                 apiSection.style.display = "block";
+                // 🚨 대한민국 fall UI 링크는 원본 검색어 그대로 사용 (한글 검색)
                 const fallbackLink = `https://www.law.go.kr/lsSc.do?section=&menuId=1&subMenuId=15&tabMenuId=81&query=${encodeURIComponent(currentQuery)}`;
                 const showFallbackUI = () => {
                     apiContent.innerHTML = `<div style="padding:15px; text-align:center;"><div style="color:#BFAA71; font-size:1.15rem; margin-bottom:12px; font-weight:bold;">🛡️ 정부 방화벽 우회: 공식 데이터망 연결 완료</div><div style="color:#94A3B8; font-size:1rem; margin-bottom:25px; line-height:1.6;">법제처 오픈 API 서버가 현재 외부망 접근을 제한하고 있습니다.<br>DONNA가 분석한 가장 안정적인 직통 경로(Direct Route)로 즉시 연결합니다.</div><a href="${fallbackLink}" target="_blank" class="fallback-btn">국가법령정보센터 원문 열람 ↗</a></div>`;
@@ -188,6 +211,7 @@
                 } else {
                     apiContent.innerHTML = `<div style="text-align:center; padding:40px 20px;"><span style="color:#BFAA71; font-size:2rem; display:block; margin-bottom:15px; animation: pulse 1.5s infinite;">📡</span><span style="display:block; font-size:1.2rem; color:#F8FAFC; margin-bottom:8px; font-weight:bold;">Data Fetching...</span><span style="font-size:0.95rem; color:#94A3B8;">법제처 공공데이터 서버와 실시간 통신 중입니다.</span></div>`;
                     const timestamp = new Date().getTime();
+                    // 🚨 대한민국 API 호출은 원본 검색어 그대로 사용 (한글 검색)
                     const apiUrl = `https://www.law.go.kr/DRF/lawSearch.do?OC=${MOLEG_API_KEY}&target=law&type=XML&query=${encodeURIComponent(currentQuery)}&_cb=${timestamp}`;
                     const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
                     
