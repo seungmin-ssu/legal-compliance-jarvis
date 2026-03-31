@@ -13,16 +13,15 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 10px; }
         
-        /* 🎬 시네마틱 모션 그래픽 인트로 (정체성 문구 추가) */
+        /* 🎬 시네마틱 모션 그래픽 인트로 */
         #intro-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: #05080F; z-index: 9999;
             display: flex; justify-content: center; align-items: center;
             flex-direction: column;
-            animation: introZoomOut 5.2s cubic-bezier(0.8, 0, 0.2, 1) forwards; /* 재생 시간 0.7초 연장 */
+            animation: introZoomOut 5.2s cubic-bezier(0.8, 0, 0.2, 1) forwards; 
         }
         
-        /* AI 스캐닝 네온 링 */
         .motion-ring {
             position: absolute;
             width: 150px; height: 150px;
@@ -35,7 +34,6 @@
             opacity: 0;
         }
 
-        /* 텍스트 컨테이너 */
         .intro-text-container {
             display: flex; flex-direction: column; align-items: center; gap: 12px;
             z-index: 2;
@@ -60,17 +58,15 @@
             background-size: 200% 100%; -webkit-background-clip: text; color: transparent;
         }
 
-        /* 🎓 정체성 문구 전용 모션 (새로 구현된 부분) */
+        /* 🎓 정체성 문구 - 가볍고 세련된 팝인(Pop-in) 모션으로 변경 */
         .intro-tagline {
             font-size: 1.3rem; color: #BFAA71; letter-spacing: 5px; font-weight: 600; text-transform: uppercase;
-            margin-top: 20px; padding: 10px 20px;
-            border: 1px solid transparent; border-radius: 10px;
+            margin-top: 15px;
             opacity: 0;
-            /* 위로 서서히 나타나며 골드 네온 테두리가 생기고 빛의 파동이 지나가는 연출 */
-            animation: textFadeUp 0.8s ease forwards 2.4s, tagShimmer 1.5s infinite linear 3s, tagNeonPulse 2s alternate infinite 2.8s;
+            /* 테두리와 강한 네온을 빼고, 탄력적으로 '뿅' 나타나는 애니메이션 적용 */
+            animation: elegantPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 2.4s;
         }
 
-        /* 모션 키프레임 정의 */
         @keyframes spinRing {
             0% { transform: rotate(0deg) scale(0); opacity: 0; }
             50% { opacity: 1; }
@@ -88,22 +84,20 @@
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
         }
-        /* 문구 전용 네온 및 데이터 파동 효과 */
-        @keyframes tagShimmer {
-            0% { background-image: linear-gradient(90deg, transparent, #4F8AFF, transparent); background-size: 200% 100%; -webkit-background-clip: text; color: transparent; background-position: -200% 0; }
-            100% { background-image: linear-gradient(90deg, transparent, #4F8AFF, transparent); background-size: 200% 100%; -webkit-background-clip: text; color: transparent; background-position: 200% 0; }
+        
+        /* ✨ 새로 추가된 부드러운 팝인 애니메이션 */
+        @keyframes elegantPop {
+            0% { opacity: 0; transform: scale(0.8) translateY(15px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); text-shadow: 0 0 15px rgba(191,170,113,0.4); }
         }
-        @keyframes tagNeonPulse {
-            0% { color: transparent; border-color: rgba(191,170,113,0.3); box-shadow: 0 0 5px rgba(191,170,113,0.1); }
-            100% { color: #BFAA71; border-color: rgba(191,170,113,0.8); box-shadow: 0 0 15px rgba(191,170,113,0.5), inset 0 0 5px rgba(191,170,113,0.2); }
-        }
+
         @keyframes introZoomOut {
             0% { transform: scale(1); opacity: 1; visibility: visible; }
-            90% { transform: scale(1); opacity: 1; visibility: visible; filter: blur(0); } /* 머무르는 시간 증가 */
+            90% { transform: scale(1); opacity: 1; visibility: visible; filter: blur(0); }
             100% { transform: scale(2.5); opacity: 0; visibility: hidden; filter: blur(10px); display: none; }
         }
 
-        /* 기존 UI CSS 유지 */
+        /* 메인 UI 스타일 */
         .news-sidebar { width: 380px; background: linear-gradient(145deg, #0F172A, #0B111A); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 30px; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.4); z-index: 50; }
         .news-header { font-size: 1.2rem; font-weight: bold; color: #BFAA71; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; letter-spacing: 0.5px; }
         .nl-search-wrapper { position: relative; width: 100%; margin-bottom: 25px; }
@@ -185,13 +179,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const introScreen = document.getElementById('intro-screen');
-            // 세션 스토리지: 최초 1회만 재생 (테스트 시 시크릿 창 활용)
             if (!sessionStorage.getItem('donnaIntroPlayed')) {
                 setTimeout(() => {
-                    // 총 재생 시간(5.2초) 뒤에 완전히 DOM에서 제거
                     introScreen.style.display = 'none';
                     sessionStorage.setItem('donnaIntroPlayed', 'true');
-                }, 5200); /* 재생 시간 연장에 맞춰 딜레이 수정 */
+                }, 5200); 
             } else {
                 introScreen.style.display = 'none';
             }
