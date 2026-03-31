@@ -13,40 +13,93 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 10px; }
         
-        /* 🍎 스플래시 화면 */
+        /* 🎬 시네마틱 모션 그래픽 인트로 (새로 구현된 부분) */
         #intro-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: #05080F; z-index: 9999;
             display: flex; justify-content: center; align-items: center;
-            transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
-        }
-        .intro-text-container { display: flex; flex-direction: column; align-items: center; gap: 10px; opacity: 0; animation: cinematicFadeInOut 4.5s ease-in-out forwards; }
-        .intro-welcome { font-size: 2rem; color: #94A3B8; letter-spacing: 2px; font-weight: 300; }
-        .intro-desc { font-size: 1.3rem; color: #E2E8F0; letter-spacing: 5px; font-weight: 300; text-transform: uppercase; margin-bottom: 10px; }
-        .intro-logo { font-size: 5rem; color: transparent; background: linear-gradient(90deg, #BFAA71, #FDF5A9); -webkit-background-clip: text; font-weight: 900; letter-spacing: 12px; }
-        
-        @keyframes cinematicFadeInOut {
-            0% { opacity: 0; transform: translateY(20px); filter: blur(5px); }
-            20% { opacity: 1; transform: translateY(0); filter: blur(0); }
-            80% { opacity: 1; transform: translateY(0); filter: blur(0); }
-            100% { opacity: 0; transform: translateY(-20px); filter: blur(5px); }
+            flex-direction: column;
+            /* 마지막에 화면이 뚫리며 사라지는 연출 */
+            animation: introZoomOut 4.5s cubic-bezier(0.8, 0, 0.2, 1) forwards;
         }
         
-        /* 벤토 사이드바 */
+        /* 모션 1: AI 스캐닝 네온 링 */
+        .motion-ring {
+            position: absolute;
+            width: 150px; height: 150px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top: 2px solid #BFAA71;
+            border-bottom: 2px solid #4F8AFF;
+            box-shadow: 0 0 20px rgba(191,170,113,0.2), inset 0 0 20px rgba(79,138,255,0.2);
+            animation: spinRing 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+            opacity: 0;
+        }
+
+        /* 모션 2: 텍스트 컨테이너 */
+        .intro-text-container {
+            display: flex; flex-direction: column; align-items: center; gap: 15px;
+            z-index: 2;
+        }
+        
+        .intro-welcome { 
+            font-size: 1.5rem; color: #94A3B8; letter-spacing: 2px; font-weight: 300; 
+            opacity: 0; animation: textFadeUp 0.8s ease forwards 1s; 
+        }
+        
+        .intro-logo { 
+            font-size: 5rem; color: transparent; background: linear-gradient(90deg, #BFAA71, #FDF5A9); 
+            -webkit-background-clip: text; font-weight: 900; 
+            /* 글자 자간이 극적으로 좁혀지며 빛을 내는 효과 */
+            animation: logoFocus 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards 1.2s;
+            opacity: 0; letter-spacing: 30px; filter: blur(10px);
+        }
+        
+        .intro-desc { 
+            font-size: 1.2rem; color: #E2E8F0; letter-spacing: 6px; font-weight: 400; text-transform: uppercase; 
+            opacity: 0; animation: textFadeUp 0.8s ease forwards 1.8s;
+            background: linear-gradient(90deg, transparent, #4F8AFF, transparent);
+            background-size: 200% 100%;
+            -webkit-background-clip: text; color: transparent;
+            animation: textFadeUp 0.8s ease forwards 1.8s, shimmer 3s infinite linear 2s;
+        }
+
+        /* 모션 키프레임 정의 */
+        @keyframes spinRing {
+            0% { transform: rotate(0deg) scale(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: rotate(1080deg) scale(3); opacity: 0; }
+        }
+        @keyframes logoFocus {
+            0% { opacity: 0; letter-spacing: 40px; filter: blur(20px); transform: scale(1.2); }
+            100% { opacity: 1; letter-spacing: 12px; filter: blur(0px); transform: scale(1); }
+        }
+        @keyframes textFadeUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); color: #E2E8F0; }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        @keyframes introZoomOut {
+            0% { transform: scale(1); opacity: 1; visibility: visible; }
+            85% { transform: scale(1); opacity: 1; visibility: visible; filter: blur(0); }
+            100% { transform: scale(2.5); opacity: 0; visibility: hidden; filter: blur(10px); display: none; }
+        }
+
+        /* 기존 UI CSS 유지 */
         .news-sidebar { width: 380px; background: linear-gradient(145deg, #0F172A, #0B111A); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 30px; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.4); z-index: 50; }
         .news-header { font-size: 1.2rem; font-weight: bold; color: #BFAA71; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; letter-spacing: 0.5px; }
-        
         .nl-search-wrapper { position: relative; width: 100%; margin-bottom: 25px; }
         .nl-search-box { display: flex; background: #162032; border-radius: 12px; border: 1px solid rgba(191,170,113,0.2); overflow: hidden; transition: 0.3s; }
         .nl-search-box:focus-within { border-color: #BFAA71; box-shadow: 0 0 15px rgba(191,170,113,0.15); }
         .nl-search-box input { flex: 1; padding: 15px; border: none; background: transparent; color: #F8FAFC; outline: none; }
         .nl-search-box button { padding: 0 20px; background: rgba(191,170,113,0.1); border: none; border-left: 1px solid rgba(191,170,113,0.2); color: #BFAA71; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .nl-search-box button:hover { background: #BFAA71; color: #0B111A; }
-        
         .nl-autocomplete-list { position: absolute; top: 100%; left: 0; width: 100%; background: rgba(15,23,42,0.95); backdrop-filter: blur(10px); border: 1px solid #BFAA71; border-radius: 12px; z-index: 1000; max-height: 250px; overflow-y: auto; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top: 8px; }
         .nl-autocomplete-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
         .nl-autocomplete-item:hover { background: rgba(191,170,113,0.1); color: #BFAA71; }
-        
         .news-results { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding-right: 5px; }
         .news-card { background: #131C2D; border: 1px solid rgba(255,255,255,0.03); border-radius: 16px; padding: 20px; transition: 0.3s; }
         .news-card:hover { transform: translateY(-3px); border-color: rgba(191,170,113,0.3); background: #162238; }
@@ -55,17 +108,14 @@
         .news-link { display: inline-block; color: #0B111A; background: #BFAA71; text-decoration: none; padding: 8px 15px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; transition: 0.3s; }
         .news-link:hover { box-shadow: 0 0 15px rgba(191,170,113,0.4); }
 
-        /* 메인 패널 */
         .main-content { flex: 1; background: linear-gradient(145deg, #0F172A, #080D16); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); position: relative; overflow-y: auto; }
         h1 { font-size: 4rem; margin-bottom: 2.5rem; letter-spacing: 8px; color: transparent; background: linear-gradient(90deg, #BFAA71, #FDF5A9); -webkit-background-clip: text; font-weight: 900; text-shadow: 0 10px 30px rgba(191,170,113,0.2); }
-        
         .search-container { width: 100%; max-width: 750px; display: flex; position: relative; border-radius: 20px; background: #162032; border: 1px solid rgba(191,170,113,0.3); box-shadow: 0 15px 40px rgba(0,0,0,0.4); transition: 0.3s; z-index: 100; }
         .search-container:focus-within { box-shadow: 0 0 40px rgba(191,170,113,0.25); border-color: #BFAA71; }
         .input-wrapper { flex: 1; position: relative; display: flex; }
         .search-box { flex: 1; padding: 22px 35px; font-size: 1.25rem; border: none; background: transparent; color: #F8FAFC; outline: none; border-radius: 20px 0 0 20px; letter-spacing: 0.5px; }
         .search-btn { padding: 0 45px; font-size: 1.15rem; border: none; border-radius: 0 20px 20px 0; background: linear-gradient(145deg, #BFAA71, #D4C391); color: #0B111A; cursor: pointer; font-weight: 800; transition: 0.3s; }
         .search-btn:hover { background: #FDF5A9; box-shadow: 0 0 20px rgba(191,170,113,0.5); }
-        
         .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: rgba(15,23,42,0.95); backdrop-filter: blur(15px); border: 1px solid #BFAA71; border-radius: 16px; z-index: 1000; max-height: 300px; overflow-y: auto; display: none; box-shadow: 0 20px 50px rgba(0,0,0,0.6); margin-top: 15px; }
         .autocomplete-item { padding: 18px 35px; cursor: pointer; color: #E2E8F0; display: flex; align-items: center; gap: 15px; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .autocomplete-item:hover { background: rgba(191,170,113,0.1); color: #BFAA71; }
@@ -80,10 +130,11 @@
 <body>
     
     <div id="intro-screen">
+        <div class="motion-ring"></div>
         <div class="intro-text-container">
-            <span class="intro-welcome">Welcome,</span>
-            <span class="intro-desc">Free Legal Search Engine</span>
+            <span class="intro-welcome">Welcome to</span>
             <span class="intro-logo">DONNA</span>
+            <span class="intro-desc">Free Legal Search Engine</span>
         </div>
     </div>
 
@@ -118,10 +169,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const introScreen = document.getElementById('intro-screen');
+            // 세션 스토리지: 최초 1회만 재생 (테스트를 원하시면 크롬에서 새 시크릿 창을 열어보세요)
             if (!sessionStorage.getItem('donnaIntroPlayed')) {
                 setTimeout(() => {
-                    introScreen.style.opacity = '0';
-                    introScreen.style.visibility = 'hidden';
+                    // CSS 애니메이션(introZoomOut)이 4.5초간 실행된 후, 완전히 DOM에서 제거
+                    introScreen.style.display = 'none';
                     sessionStorage.setItem('donnaIntroPlayed', 'true');
                 }, 4500); 
             } else {
@@ -135,7 +187,6 @@
             const resultsDiv = document.getElementById('newsletterResults');
             const encodedQ = encodeURIComponent(`"${q}"`); 
             
-            // 🚨 글로벌 미디어 채널 독립 카드로 분리
             resultsDiv.innerHTML = `
                 <div class="news-card"><span class="news-badge" style="background-color: #334155;">김·장/율촌/광장/태평양/세종</span><div class="news-title">국내 5대 로펌 '${q}' 뉴스레터</div><a href="https://www.google.com/search?q=site:kimchang.com+OR+site:yulchon.com+OR+site:shinkim.com+OR+site:bkl.co.kr+OR+site:leeko.com+${encodedQ}+뉴스레터" target="_blank" class="news-link">자료 보기 ↗</a></div>
                 <div class="news-card"><span class="news-badge" style="background-color: #475569; border: 1px solid #BFAA71;">Law.com (American Lawyer)</span><div class="news-title">Law.com '${q}' Insight</div><a href="https://www.google.com/search?q=site:law.com+${encodedQ}" target="_blank" class="news-link">Insight 보기 ↗</a></div>
