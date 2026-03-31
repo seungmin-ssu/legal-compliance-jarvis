@@ -135,10 +135,12 @@
             const resultsDiv = document.getElementById('newsletterResults');
             const encodedQ = encodeURIComponent(`"${q}"`); 
             
-            // 🚨 글로벌 미디어 채널 업데이트: Law.com, The Lawyer, Legal Week
+            // 🚨 글로벌 미디어 채널 독립 카드로 분리
             resultsDiv.innerHTML = `
                 <div class="news-card"><span class="news-badge" style="background-color: #334155;">김·장/율촌/광장/태평양/세종</span><div class="news-title">국내 5대 로펌 '${q}' 뉴스레터</div><a href="https://www.google.com/search?q=site:kimchang.com+OR+site:yulchon.com+OR+site:shinkim.com+OR+site:bkl.co.kr+OR+site:leeko.com+${encodedQ}+뉴스레터" target="_blank" class="news-link">자료 보기 ↗</a></div>
-                <div class="news-card"><span class="news-badge" style="background-color: #475569; border: 1px solid #BFAA71;">Law.com / The Lawyer / Legal Week</span><div class="news-title">Global Legal Media '${q}' Insight</div><a href="https://www.google.com/search?q=site:law.com+OR+site:thelawyer.com+OR+site:legalweek.com+${encodedQ}" target="_blank" class="news-link">Insight 보기 ↗</a></div>
+                <div class="news-card"><span class="news-badge" style="background-color: #475569; border: 1px solid #BFAA71;">Law.com (American Lawyer)</span><div class="news-title">Law.com '${q}' Insight</div><a href="https://www.google.com/search?q=site:law.com+${encodedQ}" target="_blank" class="news-link">Insight 보기 ↗</a></div>
+                <div class="news-card"><span class="news-badge" style="background-color: #475569; border: 1px solid #BFAA71;">Legal Week</span><div class="news-title">Legal Week '${q}' Insight</div><a href="https://www.google.com/search?q=site:legalweek.com+${encodedQ}" target="_blank" class="news-link">Insight 보기 ↗</a></div>
+                <div class="news-card"><span class="news-badge" style="background-color: #475569; border: 1px solid #BFAA71;">The Lawyer</span><div class="news-title">The Lawyer '${q}' Insight</div><a href="https://www.google.com/search?q=site:thelawyer.com+${encodedQ}" target="_blank" class="news-link">Insight 보기 ↗</a></div>
                 <div class="news-card"><span class="news-badge" style="background-color: #1E293B; border: 1px solid #475569;">법률신문 / 리걸타임즈</span><div class="news-title">법률 미디어 '${q}' 기사</div><a href="https://www.google.com/search?q=site:lawtimes.co.kr+OR+site:legaltimes.co.kr+${encodedQ}" target="_blank" class="news-link">기사 보기 ↗</a></div>
                 <div class="news-card"><span class="news-badge" style="background-color: #0F172A; border: 1px solid #BFAA71; color: #BFAA71;">대한민국 정부 · 각 부처</span><div class="news-title">정부 공식 '${q}' 보도자료</div><a href="https://www.google.com/search?q=site:go.kr+OR+site:korea.kr+${encodedQ}" target="_blank" class="news-link">공식 발표 ↗</a></div>
             `;
