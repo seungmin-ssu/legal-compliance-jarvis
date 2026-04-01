@@ -58,12 +58,11 @@
             background-size: 200% 100%; -webkit-background-clip: text; color: transparent;
         }
 
-        /* 🎓 정체성 문구 - 가볍고 세련된 팝인(Pop-in) 모션으로 변경 */
+        /* 🎓 정체성 문구 - 가볍고 세련된 팝인(Pop-in) 모션 */
         .intro-tagline {
             font-size: 1.3rem; color: #BFAA71; letter-spacing: 5px; font-weight: 600; text-transform: uppercase;
             margin-top: 15px;
             opacity: 0;
-            /* 테두리와 강한 네온을 빼고, 탄력적으로 '뿅' 나타나는 애니메이션 적용 */
             animation: elegantPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 2.4s;
         }
 
@@ -84,8 +83,6 @@
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
         }
-        
-        /* ✨ 새로 추가된 부드러운 팝인 애니메이션 */
         @keyframes elegantPop {
             0% { opacity: 0; transform: scale(0.8) translateY(15px); }
             100% { opacity: 1; transform: scale(1) translateY(0); text-shadow: 0 0 15px rgba(191,170,113,0.4); }
@@ -195,11 +192,13 @@
             const resultsDiv = document.getElementById('newsletterResults');
             const encodedQ = encodeURIComponent(`"${q}"`); 
             
+            // 🚨 Law360 카드가 추가되어 총 7개의 리서치 채널이 되었습니다!
             resultsDiv.innerHTML = `
                 <div class="news-card"><span class="news-badge" style="background-color: #334155;">김·장/율촌/광장/태평양/세종</span><div class="news-title">국내 5대 로펌 '${q}' 뉴스레터</div><a href="https://www.google.com/search?q=site:kimchang.com+OR+site:yulchon.com+OR+site:shinkim.com+OR+site:bkl.co.kr+OR+site:leeko.com+${encodedQ}+뉴스레터" target="_blank" class="news-link">자료 보기 ↗</a></div>
                 <div class="news-card"><span class="news-badge" style="background-color: #475569; border: 1px solid #BFAA71;">Law.com (American Lawyer)</span><div class="news-title">Law.com '${q}' Insight</div><a href="https://www.google.com/search?q=site:law.com+${encodedQ}" target="_blank" class="news-link">Insight 보기 ↗</a></div>
                 <div class="news-card"><span class="news-badge" style="background-color: #475569; border: 1px solid #BFAA71;">Legal Week</span><div class="news-title">Legal Week '${q}' Insight</div><a href="https://www.google.com/search?q=site:legalweek.com+${encodedQ}" target="_blank" class="news-link">Insight 보기 ↗</a></div>
                 <div class="news-card"><span class="news-badge" style="background-color: #475569; border: 1px solid #BFAA71;">The Lawyer</span><div class="news-title">The Lawyer '${q}' Insight</div><a href="https://www.google.com/search?q=site:thelawyer.com+${encodedQ}" target="_blank" class="news-link">Insight 보기 ↗</a></div>
+                <div class="news-card"><span class="news-badge" style="background-color: #475569; border: 1px solid #BFAA71;">Law360</span><div class="news-title">Law360 '${q}' Insight</div><a href="https://www.google.com/search?q=site:law360.com+${encodedQ}" target="_blank" class="news-link">Insight 보기 ↗</a></div>
                 <div class="news-card"><span class="news-badge" style="background-color: #1E293B; border: 1px solid #475569;">법률신문 / 리걸타임즈</span><div class="news-title">법률 미디어 '${q}' 기사</div><a href="https://www.google.com/search?q=site:lawtimes.co.kr+OR+site:legaltimes.co.kr+${encodedQ}" target="_blank" class="news-link">기사 보기 ↗</a></div>
                 <div class="news-card"><span class="news-badge" style="background-color: #0F172A; border: 1px solid #BFAA71; color: #BFAA71;">대한민국 정부 · 각 부처</span><div class="news-title">정부 공식 '${q}' 보도자료</div><a href="https://www.google.com/search?q=site:go.kr+OR+site:korea.kr+${encodedQ}" target="_blank" class="news-link">공식 발표 ↗</a></div>
             `;
